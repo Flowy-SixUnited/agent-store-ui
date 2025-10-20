@@ -4,52 +4,27 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >AI 播客智能体是 AI + 播客新应用，可自动选题 / 脚本 / 语音 / 翻译，凭
-          NLP
-          与知识图谱快出高质量内容，支持智能剪辑配乐，还能互动收反馈优化，降创作门槛、推行业发展。</span
+          >多模态识别 Agent 可处理多类数据，具整合、关联、响应能力，应用于安防、医疗、自动驾驶等场景。</span
         >
       </div>
-      <div class="select">
-        <span class="mr-2">语音模式：</span>
-        <div>
-          <el-radio-group v-model="type">
-            <el-radio value="default">默认模式</el-radio>
-            <el-radio value="clone">克隆模式</el-radio>
-          </el-radio-group>
+      <div class="tools">
+        <div class="tool-item">
+          <Upload />
+        </div>
+        <div class="tool-item">
+          <PromptWord />
         </div>
       </div>
-    </div>
-    <div v-if="type === 'clone'" class="tools">
-      <div class="tool-item">
-        <Audio />
+      <div
+        class="generate"
+        :class="{ disabled: fileList.length === 0 }"
+        @click="handleGenerate"
+      >
+        开始生成
       </div>
-      <div class="tool-item">
-        <Audio />
+      <div v-if="result.fileName">
+        <Result />
       </div>
-      <div class="tool-item">
-        <Script @update:fileList="handleFileChange" />
-      </div>
-    </div>
-    <div v-else class="tools">
-      <div class="tool-item">
-        <Figure type="girl" />
-      </div>
-      <div class="tool-item">
-        <Figure type="boy" />
-      </div>
-      <div class="tool-item">
-        <Script @update:fileList="handleFileChange" />
-      </div>
-    </div>
-    <div
-      class="generate"
-      :class="{ disabled: fileList.length === 0 }"
-      @click="handleGenerate"
-    >
-      生成对话音频
-    </div>
-    <div v-if="result.fileName">
-      <Result />
     </div>
   </div>
 </template>
@@ -59,7 +34,8 @@ import Audio from "@/layout/components/lay-home/components/timbre.vue";
 import Script from "@/layout/components/lay-home/components/script.vue";
 import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
-
+import PromptWord from "@/layout/components/lay-home/components/prompt-word.vue";
+import Upload from "@/layout/components/lay-home/components/upload.vue";
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";
 defineOptions({
