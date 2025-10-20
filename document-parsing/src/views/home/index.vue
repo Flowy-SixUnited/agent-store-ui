@@ -4,61 +4,30 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >AI 播客智能体是 AI + 播客新应用，可自动选题 / 脚本 / 语音 / 翻译，凭
-          NLP
-          与知识图谱快出高质量内容，支持智能剪辑配乐，还能互动收反馈优化，降创作门槛、推行业发展。</span
+          >文档解析 Agent 可多格式解析、提关键信息，能降本提效、助内容理解、优化格式</span
         >
       </div>
-      <div class="select">
-        <span class="mr-2">语音模式：</span>
-        <div>
-          <el-radio-group v-model="type">
-            <el-radio value="default">默认模式</el-radio>
-            <el-radio value="clone">克隆模式</el-radio>
-          </el-radio-group>
+      <div class="tools">
+        <div class="tool-item">
+          <Document />
+        </div>
+        <div class="tool-item">
+          <Script @update:fileList="handleFileChange" />
         </div>
       </div>
-    </div>
-    <div v-if="type === 'clone'" class="tools">
-      <div class="tool-item">
-        <Audio />
+      <div>
+        <Tips />
       </div>
-      <div class="tool-item">
-        <Audio />
-      </div>
-      <div class="tool-item">
-        <Script @update:fileList="handleFileChange" />
-      </div>
-    </div>
-    <div v-else class="tools">
-      <div class="tool-item">
-        <Figure type="girl" />
-      </div>
-      <div class="tool-item">
-        <Figure type="boy" />
-      </div>
-      <div class="tool-item">
-        <Script @update:fileList="handleFileChange" />
-      </div>
-    </div>
-    <div
-      class="generate"
-      :class="{ disabled: fileList.length === 0 }"
-      @click="handleGenerate"
-    >
-      生成对话音频
-    </div>
-    <div v-if="result.fileName">
-      <Result />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import bgUrl from "@/assets/home/header-bg.png";
-import Audio from "@/layout/components/lay-home/components/timbre.vue";
+import Document from "@/layout/components/lay-home/components/document.vue";
 import Script from "@/layout/components/lay-home/components/script.vue";
 import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
+import Tips from "@/layout/components/lay-home/components/tips.vue";
 
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";

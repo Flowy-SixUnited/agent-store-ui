@@ -1,55 +1,52 @@
 <template>
   <div class="script w-124">
-    <span class="tips">对话脚本</span>
-    <el-input
-      v-model="scriptText"
-      class="textarea"
-      :autosize="{ minRows: 18, maxRows: 18 }"
-      type="textarea"
-      placeholder="可在此处填写对话脚本或上传附件，点击 “生成对话音频”，即可结合左侧选择进行智能创作
-    示例：
-    说话人1：呜…… 小枫小枫，兔子钥匙扣的线又缠在一起啦，手指都被绕住啦！​
-    说话人2：别急呀小桃！我帮你解 —— 你看，要先把线头轻轻拉出来，像拆礼物丝带一样慢～​
-    说话人1：哇！小枫好厉害！那我们能在兔子耳朵上缝星星纽扣吗？我带了粉色的！​
-    说话人2：当然可以！等下我还能帮你画腮红，这样兔子就更可爱啦～"
-    />
-
-    <el-upload
-      v-if="fileList.length === 0"
-      ref="upload"
-      class="upload-demo"
-      action="#"
-      :limit="1"
-      :on-change="handleFileChange"
-      :auto-upload="false"
-      :show-file-list="false"
-    >
-      <div class="add">
-        <el-icon :size="9"><Plus /></el-icon>
+    <div class="flex justify-between items-center">
+      <span class="tips">转化结果</span>
+      <div class="time">
+        <img
+          class="w-4 h-4 mr-2"
+          src="@/assets/home/success.png"
+          alt="success"
+        />转化完成，共用时：2分03秒
       </div>
-    </el-upload>
-    <div v-if="fileList.length > 0" class="file">
-      <div class="flex items-center gap-2">
-        <img class="w-4 h-4" src="@/assets/home/file.png" />
-        <span class="file-name">{{ fileList[0].name }}</span>
-        <span class="file-size">{{ formatFileSize(fileList[0].size) }}</span>
+    </div>
+    <div class="result-content">
+      <div class="result-switch">
+       <div
+          class="item"
+          v-for="(tag, index) in tagList"
+          :key="index"
+          @click="handleTagClick(index)"
+          :class="{ active: tag.active }"
+        >
+          {{ tag.name }}
       </div>
-      <el-icon :size="12" class="cursor-pointer ml-2" @click="fileList = []"
-        ><Close
-      /></el-icon>
+      </div>
+      <img class="copy-icon" src="@/assets/home/copy.png" alt="" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { Plus, Close } from "@element-plus/icons-vue";
 import type { UploadInstance, UploadRawFile } from "element-plus";
 const upload = ref<UploadInstance>();
 defineOptions({
   name: "home"
 });
 const scriptText = ref("");
-
+const tagList = ref([
+  { name: "MMD 渲染", active: false },
+  { name: "MMD", active: true },
+  { name: "Qwen.html", active: false }
+]);
+const handleTagClick = (clickIndex: number) => {
+  // 1. 先把所有标签的 active 设为 false
+  tagList.value.forEach((tag: { active: boolean }) => {
+    tag.active = false;
+  });
+  // 2. 再把当前点击标签的 active 设为 true
+  tagList.value[clickIndex].active = true;
+};
 const fileList = ref<UploadRawFile[]>([]);
 const emit = defineEmits(["update:fileList"]);
 const handleFileChange = (
@@ -67,68 +64,77 @@ const formatFileSize = (size: number): string => {
 </script>
 <style scoped lang="scss">
 .script {
-  height: 505px;
+  height: 588px;
   background: #ffffff;
   box-shadow: 0px 4px 10px 0px rgba(208, 208, 208, 0.3);
   border-radius: 8px;
   padding: 16px;
   .tips {
     font-family: Roboto, Roboto;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 12px;
-    color: #202a2f;
+    color: #2d5bff;
     line-height: 16px;
+    padding-left: 10px;
+    border-left: 4px solid #2d5bff;
   }
-  .textarea {
-    margin-top: 12px;
-  }
-
-  .el-textarea {
-    width: 100%;
-    --el-input-bg-color: #f7f7f7;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 15px;
-  }
-  .file {
-    margin-top: 16px;
-    padding: 12px;
-    background: #f7f7f7;
-    border-radius: 4px 4px 4px 4px;
-    border: 1px solid #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .file-name,
-  .file-size {
+  .time {
+    background: #e8fbde;
+    border-radius: 4px;
+    padding: 4px 8px;
     font-family:
       HarmonyOS Sans SC,
       HarmonyOS Sans SC;
     font-weight: 400;
     font-size: 12px;
-
-    line-height: 14px;
+    color: #61c72e;
+    display: flex;
+    align-items: center;
   }
-  .file-name {
-    color: #2173fc;
+  .textarea {
+    margin-top: 12px;
   }
-  .file-size {
-    color: #97a0c3;
+  .result-content {
+    position: relative;
+    margin-top: 20px;
+    height: 508px;
+    background: #F7F7F7;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #FFFFFF;
+    padding: 12px;
+    .result-switch {
+      width: 230px;
+      background: #FFFFFF;
+      border-radius: 8px 8px 8px 8px;
+      font-family: Inter, Inter;
+      font-weight: 400;
+      font-size: 12px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .item {
+        padding: 4px 12px;
+        cursor: pointer;
+        &.active {
+          background: #202A2F;
+          color: #FFFFFF;
+          border-radius: 8px 8px 8px 8px;
+        }
+      }
+    }
+    .copy-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
   }
 }
 :deep(.el-upload) {
   width: 100%;
 }
-.add {
-  background: #f7f7f7;
-  border: 1px dashed #d8d8d8;
-  display: flex;
-  border-radius: 4px;
-  padding: 12px 0;
-  cursor: pointer;
-  justify-content: center;
-  margin-top: 16px;
-  width: 100%;
-}
+
 </style>
