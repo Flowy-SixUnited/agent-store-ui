@@ -2,12 +2,19 @@
   <div class="script w-124">
     <div class="flex justify-between items-center">
       <span class="tips">转化结果</span>
-      <div class="time">
+      <!-- <div class="time">
         <img
           class="w-4 h-4 mr-2"
           src="@/assets/home/success.png"
           alt="success"
         />转化完成，共用时：2分03秒
+      </div> -->
+      <div class="wait-time">
+        <img
+          class="w-4 h-4 mr-2"
+          src="@/assets/home/ing.png"
+          alt="success"
+        />加载中，当前用时：00:36 | 当前进度：80%
       </div>
     </div>
     <div class="result-content">
@@ -88,6 +95,19 @@ const formatFileSize = (size: number): string => {
     font-weight: 400;
     font-size: 12px;
     color: #61c72e;
+    display: flex;
+    align-items: center;
+  }
+  .wait-time{
+    background: #DEEDFB;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family:
+      HarmonyOS Sans SC,
+      HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #2173FC;
     display: flex;
     align-items: center;
   }
