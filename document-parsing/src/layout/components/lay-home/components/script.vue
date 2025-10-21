@@ -30,12 +30,16 @@
       </div>
       </div>
       <img class="copy-icon" src="@/assets/home/copy.png" alt="" />
+      <div class="loading-container">
+        <LoadingView />
+      </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import type { UploadInstance, UploadRawFile } from "element-plus";
+import LoadingView from "./loading.vue";
 const upload = ref<UploadInstance>();
 defineOptions({
   name: "home"
@@ -150,6 +154,11 @@ const formatFileSize = (size: number): string => {
       width: 24px;
       height: 24px;
       cursor: pointer;
+    }
+    .loading-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
