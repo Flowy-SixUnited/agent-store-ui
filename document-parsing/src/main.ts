@@ -7,7 +7,7 @@ import { MotionPlugin } from "@vueuse/motion";
 import { createApp, type Directive } from "vue";
 import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
-const { VueOfficePdf, VueOfficeDocx, VueOfficeExcel } = window;
+const { VueOfficePdf, VueOfficeDocx, VueOfficeExcel } = window as any;
 import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
 

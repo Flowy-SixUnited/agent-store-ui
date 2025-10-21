@@ -8,7 +8,7 @@
         drag
         action="#"
         :auto-upload="false"
-        :accept="'.mp3,.wav,.ogg,.webm,.m4a'"
+        :accept="'.pdf,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg'"
         :limit="1"
         :on-exceed="handleExceed"
         :on-change="handleFileChange"
@@ -22,6 +22,16 @@
           <div class="button">选择文件</div>
         </div>
       </el-upload>
+      <div v-if="audioFileList.length > 0" class="file">
+        <div class="flex items-center gap-2">
+          <img class="w-7 h-7" :src="getFileIcon(audioFileList[0])" />
+          <span class="file-name">{{ audioFileList[0].name }}</span>
+          <span class="file-size">{{ formatFileSize(audioFileList[0].size) }}</span>
+        </div>
+        <el-icon :size="12" class="cursor-pointer ml-2" @click="audioFileList = []"
+          ><Close
+        /></el-icon>
+      </div>
       <div class="flex justify-between gap-8 mt-6">
         <div class="start-button">开始转换</div>
         <div class="clear-button">清除内容</div>
@@ -30,6 +40,7 @@
         <span class="tips">上传文件/图片效果预览</span>
         <div class="preview"></div>
         <!-- <FilePreview style="height: 100%" /> -->
+        <!-- <MultiPagePreview fileUrl="/六联EAM使用手册_V1.4.pdf" /> -->
       </div>
     </div>
   </div>
@@ -38,8 +49,13 @@
 import { ref } from "vue";
 import Recording from "./recording.vue";
 import FilePreview from "./file-preview.vue";
+import MultiPagePreview from "./multi-page-preview.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
+import docxIcon from "@/assets/home/file/docx.png";
+import xlsxIcon from "@/assets/home/file/xlsx.png";
+import pdfIcon from "@/assets/home/file/pdf.png";
+import pngIcon from "@/assets/home/file/png.png";
 const referenceText = ref("");
 const fileInfo = ref({
   filePath: "",
@@ -47,6 +63,7 @@ const fileInfo = ref({
   fileName: "faacd3fa-73a5-4527-9b8c-01add8c9b7b9.pdf",
   fileSize: 0
 });
+const fileUrl = ref("/六联EAM使用手册_V1.4.pdf");
 // 音频文件列表（上传组件用）
 const audioFileList = ref<UploadRawFile[]>([]);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
@@ -83,7 +100,6 @@ const currentAudio = ref<{ url: string; name: string; size: number } | null>(
 // 上传错误信息
 const uploadError = ref("");
 
-// 1. 处理文件选择/变化
 const handleFileChange = (
   file: UploadRawFile,
   compFileList: UploadRawFile[]
@@ -98,13 +114,13 @@ const handleFileChange = (
   }
 
   // 验证文件格式（虽然upload已限制，但二次验证更安全）
-  const validFormats = [".mp3", ".wav", ".ogg", ".webm", ".m4a"];
+  const validFormats = [".pdf", ".xlsx", ".xls", ".doc", ".docx", ".png", ".jpg", ".jpeg"];
   const fileExt = file.name.slice(file.name.lastIndexOf("."));
   if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
+    uploadError.value = "仅支持pdf、xlsx、xls、doc、docx、png、jpg、jpeg格式";
   }
   if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
+    uploadError.value = "仅支持pdf、xlsx、xls、doc、docx、png、jpg、jpeg格式";
     audioFileList.value = [];
     return;
   }
@@ -120,12 +136,10 @@ const handleFileChange = (
   };
 };
 
-// 2. 处理文件超出限制（已限制1个，再次选择时触发）
 const handleExceed = () => {
   uploadError.value = "最多只能上传1个音频文件";
 };
 
-// 3. 手动触发文件选择（点击“选择文件”按钮）
 const handleSelectFile = () => {
   // 触发upload组件的文件选择 dialog
   const uploadInput = document.querySelector(
@@ -134,7 +148,6 @@ const handleSelectFile = () => {
   uploadInput?.click();
 };
 
-// 4. 处理录音组件返回的音频（假设Recording组件会通过事件传递录音文件）
 const handleAudioGenerated = (audio: {
   url: string;
   name: string;
@@ -145,7 +158,6 @@ const handleAudioGenerated = (audio: {
   currentAudio.value = audio;
 };
 
-// 5. 清除当前音频（释放URL资源）
 const clearAudio = () => {
   if (currentAudio.value) {
     URL.revokeObjectURL(currentAudio.value.url); // 释放临时URL，避免内存泄漏
@@ -154,12 +166,33 @@ const clearAudio = () => {
   audioFileList.value = [];
 };
 
-// 6. 格式化文件大小（字节 → KB/MB）
+const getFileIcon = (file: UploadRawFile): string => {
+  const fileExt = file.name.slice(file.name.lastIndexOf("."));
+  console.log(fileExt);
+  switch (fileExt) {
+    case ".docx":
+    case ".doc":
+      return docxIcon;
+    case ".xlsx":
+    case ".xls":
+      return xlsxIcon;
+    case ".pdf":
+      return pdfIcon;
+    case ".png":
+    case ".jpg":
+    case ".jpeg":
+      return pngIcon;
+    default:
+      return pngIcon;
+  }
+};
+
 const formatFileSize = (size: number): string => {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 };
+
 </script>
 <style scoped lang="scss">
 .body {
@@ -263,7 +296,7 @@ const formatFileSize = (size: number): string => {
   }
   .file {
     margin-top: 16px;
-    padding: 19px 12px;
+    padding: 12px;
     background: #f7f7f7;
     border-radius: 4px;
     border: 1px solid #ffffff;
