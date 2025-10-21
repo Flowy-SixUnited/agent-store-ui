@@ -9,26 +9,49 @@
           alt="success"
         />生成完成，共用时：2分03秒
       </div>
+      <!-- <div class="wait-time">
+        <img
+          class="w-4 h-4 mr-2"
+          src="@/assets/home/ing.png"
+          alt="success"
+        />加载中，当前用时：00:36 | 当前进度：80%
+      </div> -->
     </div>
     <div class="return-file">
-      <div class="flex items-center">
-        <span class="file-name">{{ result.fileName }}</span>
-        <span class="file-size">{{ result.fileSize }}</span>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <span class="file-name">{{ result.fileName }}</span>
+          <span class="file-size">{{ result.fileSize }}</span>
+        </div>
+        <img
+          class="w-6 h-6 cursor-pointer"
+          src="@/assets/home/download.png"
+          alt="download"
+        />
       </div>
-      <img
-        class="w-6 h-6 cursor-pointer"
-        src="@/assets/home/download.png"
-        alt="download"
-      />
+      <Player :audioUrl="audioInfo.url" />
     </div>
+    <!-- <AudioPlayer /> -->
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
+import AudioPlayer from "./audio-player.vue";
+import Player from "./player.vue";
 const result = ref({
   fileName:
     "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip",
   fileSize: "2.4MB"
+});
+defineProps({
+  audioInfo: {
+    type: Object,
+    default: () => ({
+      url: "",
+      name: "",
+      size: 0
+    })
+  }
 });
 </script>
 <style scoped lang="scss">
@@ -60,14 +83,27 @@ const result = ref({
     display: flex;
     align-items: center;
   }
+  .wait-time {
+    background: #DEEDFB;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family:
+      HarmonyOS Sans SC,
+      HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #2173FC;
+    display: flex;
+    align-items: center;
+  }
   .return-file {
     background: #f7f7f7;
     border-radius: 4px 4px 4px 4px;
     border: 1px solid #ffffff;
     padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    // display: flex;
+    // align-items: center;
+    // justify-content: space-between;
     margin-top: 20px;
     .file-name,
     .file-size {

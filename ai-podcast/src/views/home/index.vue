@@ -21,10 +21,10 @@
     </div>
     <div v-if="type === 'clone'" class="tools">
       <div class="tool-item">
-        <Audio />
+        <Audio @playAudio1="handlePlayAudio1" />
       </div>
       <div class="tool-item">
-        <Audio />
+        <Audio @playAudio2="handlePlayAudio2" />
       </div>
       <div class="tool-item">
         <Script @update:fileList="handleFileChange" />
@@ -49,7 +49,7 @@
       生成对话音频
     </div>
     <div v-if="result.fileName">
-      <Result />
+      <Result :audioInfo="audioInfo" />
     </div>
   </div>
 </template>
@@ -82,6 +82,19 @@ const handleGenerate = () => {
   result.value.fileName =
     "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
   result.value.fileSize = "2.4MB";
+};
+const audioInfo = ref({
+  url: "",
+  name: "",
+  size: 0
+});
+const handlePlayAudio1 = (audio: { url: string; name: string; size: number }) => {
+  audioInfo.value = audio;
+  console.log(audio);
+};
+const handlePlayAudio2 = (audio: { url: string; name: string; size: number }) => {
+  audioInfo.value = audio;
+  console.log(audio);
 };
 </script>
 <style scoped lang="scss">

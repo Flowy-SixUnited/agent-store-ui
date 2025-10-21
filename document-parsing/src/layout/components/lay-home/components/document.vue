@@ -29,7 +29,7 @@
       <div class="content">
         <span class="tips">上传文件/图片效果预览</span>
         <div class="preview"></div>
-        <!-- <FilePreview :fileInfo="fileInfo" style="height: 100%" /> -->
+        <!-- <FilePreview style="height: 100%" /> -->
       </div>
     </div>
   </div>

@@ -22,25 +22,29 @@
           <div class="button">选择文件</div>
         </div>
       </el-upload>
-      <div v-if="audioFileList.length > 0" class="file">
-        <div class="flex items-center gap-2">
-          <img class="w-4 h-4" src="@/assets/home/file.png" />
-          <span
-            class="file-name cursor-pointer"
-            @click="handlePlayAudio(audioFileList[0])"
-            >{{ audioFileList[0].name }}</span
-          >
-          <span class="file-size">{{
-            formatFileSize(audioFileList[0].size)
-          }}</span>
+      <div class="file" v-if="audioFileList.length > 0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <img class="w-4 h-4" src="@/assets/home/file.png" />
+            <span
+              class="file-name cursor-pointer"
+              @click="handlePlayAudio(audioFileList[0])"
+              >{{ audioFileList[0].name }}</span
+            >
+            <span class="file-size">{{
+              formatFileSize(audioFileList[0].size)
+            }}</span>
+          </div>
+          <el-icon
+            :size="12"
+            class="cursor-pointer ml-2"
+            @click="audioFileList = []"
+            ><Close
+          /></el-icon>
         </div>
-        <el-icon
-          :size="12"
-          class="cursor-pointer ml-2"
-          @click="audioFileList = []"
-          ><Close
-        /></el-icon>
+        <Player :audioUrl="currentAudio?.url || ''" />
       </div>
+      <!-- <AudioPlayer :audioUrl="currentAudio?.url || ''" /> -->
       <div>
         <Recording />
       </div>
@@ -56,7 +60,7 @@
         <el-input
           v-else
           v-model="referenceText"
-          :autosize="{ minRows: 12.5, maxRows: 12.5 }"
+          :autosize="{ minRows: 8, maxRows: 8 }"
           type="textarea"
           placeholder="音频1的参考文案"
         />
@@ -67,6 +71,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import Recording from "./recording.vue";
+import Player from "./player.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
 const referenceText = ref("");
@@ -74,6 +79,7 @@ const referenceText = ref("");
 const audioFileList = ref<UploadRawFile[]>([]);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 const playingFileName = ref("");
+const emit = defineEmits(["playAudio1", "playAudio2"]);
 const handlePlayAudio = (file: UploadRawFile) => {
   // 1. 若还未创建音频实例，初始化一个
   if (!audioPlayer.value) {
@@ -141,6 +147,7 @@ const handleFileChange = (
     name: file.name,
     size: file.size
   };
+  emit("playAudio1", currentAudio.value);
 };
 
 // 2. 处理文件超出限制（已限制1个，再次选择时触发）
@@ -280,14 +287,14 @@ const formatFileSize = (size: number): string => {
     }
   }
   .file {
-    margin-top: 16px;
+    // margin-top: 16px;
     padding: 19px 12px;
     background: #f7f7f7;
     border-radius: 4px;
     border: 1px solid #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    // display: flex;
+    // justify-content: space-between;
+    // align-items: center;
     .file-name,
     .file-size {
       font-family:

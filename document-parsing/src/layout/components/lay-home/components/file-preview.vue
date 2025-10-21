@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <vue-office-pdf src="/六联EAM使用手册_V1.4.pdf" style="height: 100%" @rendered="rendered" @error="HandlError"> </vue-office-pdf>
+    <VueOfficePdf :src="pdfSrc" style="height: 100%" @rendered="rendered" @error="HandlError"> </VueOfficePdf>
 	   <!-- <video v-if="fileInfo.fileType === 'video' && fileInfo.filePath"
    			 width="100%" controls controlslist="nodownload">
    			 /**  controlslist="nodownload" 隐藏下载按钮 */
@@ -17,12 +17,13 @@
 </template>
 <script setup>
 import { ref } from "vue";
-const props = defineProps({
-  fileInfo: {
-    type: Object,
-    required: true
-  }
-});
+// const props = defineProps({
+//   fileInfo: {
+//     type: Object,
+//     required: true
+//   }
+// });
+const pdfSrc = ref("/六联EAM使用手册_V1.4.pdf");
 const loading = ref(true);
 /** rendered：渲染完成后调用 */
 const HandlError = (err) => {
