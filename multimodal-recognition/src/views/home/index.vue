@@ -9,20 +9,20 @@
       </div>
       <div class="tools">
         <div class="tool-item">
-          <Upload />
+          <Upload @update:fileList="handleFileChange" />
         </div>
         <div class="tool-item">
-          <PromptWord />
+          <PromptWord @update:text="handleTextChange" />
         </div>
       </div>
       <div
         class="generate"
-        :class="{ disabled: fileList.length === 0 }"
+        :class="{ disabled: fileList.length === 0 || promptText === '' }"
         @click="handleGenerate"
       >
         开始生成
       </div>
-      <div v-if="result.fileName">
+      <div v-if="result.fileName && result.scriptText">
         <Result />
       </div>
     </div>
@@ -45,11 +45,17 @@ const type = ref("default");
 const fileList = ref<UploadRawFile[]>([]);
 const result = ref({
   fileName: "",
-  fileSize: ""
+  fileSize: "",
+  scriptText: ""
 });
 const handleFileChange = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
   console.log(fileList.value.length);
+};
+const promptText = ref("");
+const handleTextChange = (newText: string) => {
+  promptText.value = newText;
+  console.log(promptText.value);
 };
 const handleGenerate = () => {
   if (fileList.value.length === 0) {
@@ -58,6 +64,7 @@ const handleGenerate = () => {
   result.value.fileName =
     "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
   result.value.fileSize = "2.4MB";
+  result.value.scriptText = promptText.value;
 };
 </script>
 <style scoped lang="scss">

@@ -98,7 +98,7 @@ const formatFileSize = (size: number): string => {
     display: flex;
     align-items: center;
   }
-  .wait-time{
+  .wait-time {
     background: #DEEDFB;
     border-radius: 4px;
     padding: 4px 8px;

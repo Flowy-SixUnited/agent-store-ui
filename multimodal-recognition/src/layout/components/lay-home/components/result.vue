@@ -2,25 +2,22 @@
   <div class="result">
     <div class="flex justify-between items-center">
       <div class="tips">生成结果</div>
-      <div class="time">
+      <!-- <div class="time">
         <img
           class="w-4 h-4 mr-2"
           src="@/assets/home/success.png"
           alt="success"
         />生成完成，共用时：2分03秒
+      </div> -->
+      <div class="wait-time">
+        <img
+          class="w-4 h-4 mr-2"
+          src="@/assets/home/ing.png"
+          alt="success"
+        />加载中，当前用时：00:36 | 当前进度：80%
       </div>
     </div>
-    <div class="return-file">
-      <div class="flex items-center">
-        <span class="file-name">{{ result.fileName }}</span>
-        <span class="file-size">{{ result.fileSize }}</span>
-      </div>
-      <img
-        class="w-6 h-6 cursor-pointer"
-        src="@/assets/home/download.png"
-        alt="download"
-      />
-    </div>
+    <div class="content">多模态识别 Agent，操作超简单！先上传音频、视频或图片，再输入提示词，点击生成按钮就能出结果。比如上传：《多模态识别 Agent 介绍》.mov 视频，提示词输入 “视频里讲了什么？”，点 “开始生成”，直接拿到文字总结～</div>
   </div>
 </template>
 <script setup lang="ts">
@@ -60,6 +57,19 @@ const result = ref({
     display: flex;
     align-items: center;
   }
+  .wait-time {
+    background: #DEEDFB;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family:
+      HarmonyOS Sans SC,
+      HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 12px;
+    color: #2173FC;
+    display: flex;
+    align-items: center;
+  }
   .return-file {
     background: #f7f7f7;
     border-radius: 4px 4px 4px 4px;
@@ -84,6 +94,14 @@ const result = ref({
       color: #97a0c3;
       margin-left: 8px;
     }
+  }
+  .content {
+    margin-top: 20px;
+    font-family: HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 13px;
+    color: #202A2F;
+    line-height: 18px;
   }
 }
 </style>

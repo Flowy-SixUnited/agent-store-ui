@@ -15,7 +15,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { UploadInstance, UploadRawFile } from "element-plus";
 const upload = ref<UploadInstance>();
 defineOptions({
@@ -24,14 +24,13 @@ defineOptions({
 const scriptText = ref("");
 
 const fileList = ref<UploadRawFile[]>([]);
-const emit = defineEmits(["update:fileList"]);
-const handleFileChange = (
-  file: UploadRawFile,
-  compFileList: UploadRawFile[]
-) => {
-  fileList.value = compFileList;
-  emit("update:fileList", fileList.value);
-};
+const emit = defineEmits(["update:text"]);
+watch(
+  () => scriptText.value,
+  (newVal) => {
+    emit("update:text", newVal);
+  }
+);
 const formatFileSize = (size: number): string => {
   if (size < 1024) return `${size}B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)}KB`;
