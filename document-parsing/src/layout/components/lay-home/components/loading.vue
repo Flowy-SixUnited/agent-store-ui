@@ -1,6 +1,9 @@
 <template>
-  <div class="relative w-80 h-80" ref="container">
-    <!-- 四个小圆点 -->
+  <div class="loader-container">
+    <div class="loader"></div>
+    <p class="loading-text">加载中，请稍等...</p>
+  </div>
+  <!-- <div class="relative w-80 h-80" ref="container">
     <div
       v-for="(dot, index) in dots"
       :key="index"
@@ -8,7 +11,7 @@
       :class="['dot', 'dot-animation', `dot-delay-${index + 1}`]"
       :style="{ left: dot.left, top: dot.top }"
     ></div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>
@@ -58,6 +61,68 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 页面基础样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
+
+/* 加载容器 */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 加载动画圆环 */
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border-top-color: #FF718B;
+  border-right-color: #FBB4C1;
+  border-bottom-color: #FFD971;
+  border-left-color: #FBE8B4;
+  animation: spin 1.5s linear infinite;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 加载文字 */
+.loading-text {
+  font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+  font-weight: 400;
+  font-size: 13px;
+  color: #A8B1B7;
+  line-height: 19px;
+}
+
+/* 旋转动画 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 文字脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
 .dot {
   width: 2rem;
   height: 2rem;

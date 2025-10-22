@@ -1,16 +1,21 @@
 <template>
   <div class="multi-page-preview">
+    <!-- <iframe
+      :src="fileUrl"
+      style="width: 100%; height: 600px"
+      frameborder="0"
+    ></iframe> -->
     <!-- 分页控制按钮 -->
-    <button
+    <!-- <button
       class="page-btn"
       :disabled="currentPage === 1"
       @click="currentPage--"
     >
-      <!-- <img src="@/assets/icons/arrow-left.png" alt="上一页" /> -->
-    </button>
+      <img src="@/assets/icons/arrow-left.png" alt="上一页" />
+    </button> -->
 
     <!-- PDF 预览区域（直接使用全局组件） -->
-    <vue-office-pdf
+    <vue-office-docx
       :src="fileUrl"
       :page="currentPage"
       style="width: 100%; height: 600px"
@@ -19,23 +24,23 @@
     />
 
     <!-- 分页控制按钮 -->
-    <button
+    <!-- <button
       class="page-btn"
       :disabled="currentPage === totalPages"
       @click="currentPage++"
     >
-      <!-- <img src="@/assets/icons/arrow-right.png" alt="下一页" /> -->
-    </button>
+      <img src="@/assets/icons/arrow-right.png" alt="下一页" />
+    </button> -->
 
     <!-- 页码提示 -->
-    <div class="page-info">
+    <!-- <div class="page-info">
       {{ currentPage }}/{{ totalPages }}
-    </div>
+    </div> -->
   </div>
 </template>
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
-import { VueOfficePdf } from '@vue-office/pdf';
+// import { VueOfficeDocx } from "@vue-office/docx";
 // 从 window 全局对象获取 pdfjsLib（无需 import）
 // const pdfjsLib = window.pdfjsLib;
 

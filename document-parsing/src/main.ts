@@ -7,7 +7,7 @@ import { MotionPlugin } from "@vueuse/motion";
 import { createApp, type Directive } from "vue";
 import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
-const { VueOfficePdf, VueOfficeDocx, VueOfficeExcel } = window as any;
+// const { VueOfficePdf, VueOfficeDocx, VueOfficeExcel } = window as any;
 import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
 
@@ -60,8 +60,8 @@ getPlatformConfig(app).then(async config => {
   app.use(MotionPlugin).use(useElementPlus).use(Table);
   // .use(PureDescriptions)
   // .use(useEcharts);
-  app.component("vue-office-pdf", VueOfficePdf); // 注册 pdf 组件
-  app.component("vue-office-docx", VueOfficeDocx); // 注册 docx 组件（如果需要）
-  app.component("vue-office-excel", VueOfficeExcel); // 注册 excel 组件（如果需要）
+  // app.component("vue-office-pdf", VueOfficePdf); // 注册 pdf 组件
+  // app.component("vue-office-docx", VueOfficeDocx); // 注册 docx 组件（如果需要）
+  // app.component("vue-office-excel", VueOfficeExcel); // 注册 excel 组件（如果需要）
   app.mount("#app");
 });

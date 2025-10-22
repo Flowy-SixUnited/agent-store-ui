@@ -156,6 +156,7 @@ const formatFileSize = (size: number): string => {
       cursor: pointer;
     }
     .loading-container {
+      margin-top: 88px;
       display: flex;
       align-items: center;
       justify-content: center;

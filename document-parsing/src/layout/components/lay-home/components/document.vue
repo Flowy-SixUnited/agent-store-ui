@@ -28,19 +28,20 @@
           <span class="file-name">{{ audioFileList[0].name }}</span>
           <span class="file-size">{{ formatFileSize(audioFileList[0].size) }}</span>
         </div>
-        <el-icon :size="12" class="cursor-pointer ml-2" @click="audioFileList = []"
+        <el-icon :size="12" class="cursor-pointer ml-2" @click="removeFile(audioFileList[0])"
           ><Close
         /></el-icon>
       </div>
-      <div class="flex justify-between gap-8 mt-6">
+      <div class="flex justify-between gap-8 mt-2">
         <div class="start-button">开始转换</div>
         <div class="clear-button">清除内容</div>
       </div>
       <div class="content">
         <span class="tips">上传文件/图片效果预览</span>
-        <div class="preview"></div>
+        <div v-if="!fileInfo.filePath" class="preview"></div>
+        <Preview v-else :fileUrl="fileInfo.filePath" :fileName="fileInfo.fileName" class="file-preview" />
         <!-- <FilePreview style="height: 100%" /> -->
-        <!-- <MultiPagePreview fileUrl="/六联EAM使用手册_V1.4.pdf" /> -->
+        <!-- <MultiPagePreview fileUrl="/file/1.docx" /> -->
       </div>
     </div>
   </div>
@@ -50,6 +51,7 @@ import { ref } from "vue";
 import Recording from "./recording.vue";
 import FilePreview from "./file-preview.vue";
 import MultiPagePreview from "./multi-page-preview.vue";
+import Preview from "./preview.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
 import docxIcon from "@/assets/home/file/docx.png";
@@ -63,7 +65,7 @@ const fileInfo = ref({
   fileName: "faacd3fa-73a5-4527-9b8c-01add8c9b7b9.pdf",
   fileSize: 0
 });
-const fileUrl = ref("/六联EAM使用手册_V1.4.pdf");
+const fileUrl = ref("/file/tx.png");
 // 音频文件列表（上传组件用）
 const audioFileList = ref<UploadRawFile[]>([]);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
@@ -134,38 +136,22 @@ const handleFileChange = (
     name: file.name,
     size: file.size
   };
+  // 更新文件信息
+  fileInfo.value = {
+    filePath: fileUrl,
+    fileType: fileExt.slice(1),
+    fileName: file.name,
+    fileSize: file.size
+  };
 };
 
 const handleExceed = () => {
   uploadError.value = "最多只能上传1个音频文件";
 };
-
-const handleSelectFile = () => {
-  // 触发upload组件的文件选择 dialog
-  const uploadInput = document.querySelector(
-    ".el-upload__input"
-  ) as HTMLInputElement;
-  uploadInput?.click();
-};
-
-const handleAudioGenerated = (audio: {
-  url: string;
-  name: string;
-  size: number;
-}) => {
-  // 清空上传的文件，优先显示录音
+const removeFile = () => {
   audioFileList.value = [];
-  currentAudio.value = audio;
+  fileInfo.value = {};
 };
-
-const clearAudio = () => {
-  if (currentAudio.value) {
-    URL.revokeObjectURL(currentAudio.value.url); // 释放临时URL，避免内存泄漏
-  }
-  currentAudio.value = null;
-  audioFileList.value = [];
-};
-
 const getFileIcon = (file: UploadRawFile): string => {
   const fileExt = file.name.slice(file.name.lastIndexOf("."));
   console.log(fileExt);
@@ -279,7 +265,7 @@ const formatFileSize = (size: number): string => {
     line-height: 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
     .el-textarea {
       width: 100%;
       --el-input-bg-color: #f7f7f7;
@@ -288,14 +274,23 @@ const formatFileSize = (size: number): string => {
       line-height: 15px;
     }
     .preview {
-      height: 240px;
+      height: 256px;
       background: #f7f7f7;
       border-radius: 4px 4px 4px 4px;
       border: 1px solid #ffffff;
     }
+    .file-preview {
+      height: 356px;
+      background: #f7f7f7;
+      border-radius: 4px 4px 4px 4px;
+      border: 1px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
   .file {
-    margin-top: 16px;
+    margin-top: 10px;
     padding: 12px;
     background: #f7f7f7;
     border-radius: 4px;
