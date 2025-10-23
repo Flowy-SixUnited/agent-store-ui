@@ -14,6 +14,7 @@
         <div class="tool-item">
           <Script
             :fileList="fileList"
+            :fileUrl="fileUrl"
             :status="status"
             @update:status="handleStatusUpdate"
           />
@@ -37,9 +38,11 @@ defineOptions({
   name: "home"
 });
 const fileList = ref<UploadRawFile[]>([]);
+const fileUrl = ref("");
 const status = ref("ready");
-const handleConvert = (newFileList: UploadRawFile[]) => {
+const handleConvert = (newFileList: UploadRawFile[], filePath: String) => {
   fileList.value = newFileList;
+  fileUrl.value = filePath.toString();
   status.value = "loading";
 };
 const handleStatusUpdate = (newStatus: string) => {

@@ -103,7 +103,7 @@ const handleFileChange = (
   };
 };
 const handleConvert = () => {
-  emit("convert", fileList.value);
+  emit("convert", fileList.value, fileInfo.value.filePath);
 };
 const removeFile = () => {
   fileList.value = [];

@@ -17,7 +17,23 @@
         />转化完成，共用时：{{ formatTime(totalLoadingTime) }}
       </div>
     </div>
-    <div class="result-content">
+    <div v-if="fileList.length > 0" class="file">
+      <div class="flex items-center gap-2">
+        <img class="w-7 h-7" src="@/assets/home/file/pdf.png" />
+        <span class="file-name">{{ fileList[0].name }}</span>
+        <span class="file-size">{{ formatFileSize(fileList[0].size) }}</span>
+      </div>
+      <img
+        class="w-6 h-6 cursor-pointer"
+        src="@/assets/home/download.png"
+        alt="download"
+        @click="handleDownload"
+      />
+    </div>
+    <div
+      class="result-content"
+      :style="{ height: status === 'ready' ? '522px' : '448px' }"
+    >
       <div class="result-switch">
         <div
           class="item"
@@ -33,7 +49,7 @@
       <div v-if="status === 'loading'" class="loading-container">
         <LoadingView />
       </div>
-      <Result v-if="status === 'success'" />
+      <Result :fileUrl="fileUrl" v-if="status === 'success'" />
     </div>
   </div>
 </template>
@@ -41,6 +57,7 @@
 import { ref, watch, onUnmounted } from "vue";
 import LoadingView from "./loading.vue";
 import Result from "./result.vue";
+import { Close } from "@element-plus/icons-vue";
 defineOptions({
   name: "home"
 });
@@ -48,6 +65,10 @@ const props = defineProps({
   fileList: {
     type: Array,
     required: true
+  },
+  fileUrl: {
+    type: String,
+    default: ""
   },
   status: {
     type: String,
@@ -79,7 +100,33 @@ const formatTime = (seconds: number) => {
   const sec = (seconds % 60).toString().padStart(2, "0");
   return `${min}:${sec}`;
 };
+const formatFileSize = (size: number): string => {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+//文件下载
+const handleDownload = () => {
+  if (!props.fileList.length) return;
+  const file = props.fileList[0];
+  const fileBlob = file.raw || file.blob;
+  if (!fileBlob) {
+    console.error("文件数据不存在");
+    return;
+  }
 
+  // 创建下载链接
+  const url = URL.createObjectURL(fileBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = file.name; // 下载文件名
+  document.body.appendChild(a);
+  a.click(); // 触发下载
+
+  // 清理资源，避免内存泄漏
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
 watch(
   () => props.status,
   newStatus => {
@@ -156,13 +203,39 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
   }
+  .file {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f7f7f7;
+    border-radius: 4px;
+    border: 1px solid #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .file-name,
+    .file-size {
+      font-family:
+        HarmonyOS Sans SC,
+        HarmonyOS Sans SC;
+      font-weight: 400;
+      font-size: 12px;
+
+      line-height: 14px;
+    }
+    .file-name {
+      color: #2173fc;
+    }
+    .file-size {
+      color: #97a0c3;
+    }
+  }
   .textarea {
     margin-top: 12px;
   }
   .result-content {
     position: relative;
-    margin-top: 20px;
-    height: 508px;
+    margin-top: 16px;
+    // height: 445px;
     background: #f7f7f7;
     border-radius: 4px 4px 4px 4px;
     border: 1px solid #ffffff;

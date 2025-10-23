@@ -5,6 +5,12 @@ import VuePdfEmbed from "vue-pdf-embed";
 defineOptions({
   name: "Pdf"
 });
+const props = defineProps({
+  fileUrl: {
+    type: String,
+    required: true
+  }
+});
 const pdfRef = ref<any>();
 const pageCount = ref(1);
 const loading = ref(true);
@@ -27,14 +33,14 @@ const handleDocumentRender = () => {
 
 <template>
   <el-card shadow="never" class="mt-[12px]">
-    <div class="h-[calc(100vh-420px)]">
+    <div class="h-[calc(100vh-480px)]">
       <el-scrollbar>
         <vue-pdf-embed
           ref="pdfRef"
           class="h-full container overflow-auto"
           :rotation="rotations[currentRotation]"
           :page="currentPage"
-          :source="source"
+          :source="fileUrl"
           @rendered="handleDocumentRender"
         />
       </el-scrollbar>
