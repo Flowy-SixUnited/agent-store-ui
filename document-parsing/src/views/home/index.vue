@@ -9,10 +9,14 @@
       </div>
       <div class="tools">
         <div class="tool-item">
-          <Document />
+          <Document @convert="handleConvert" />
         </div>
         <div class="tool-item">
-          <Script @update:fileList="handleFileChange" />
+          <Script
+            :fileList="fileList"
+            :status="status"
+            @update:status="handleStatusUpdate"
+          />
         </div>
       </div>
       <div>
@@ -25,8 +29,6 @@
 import bgUrl from "@/assets/home/header-bg.png";
 import Document from "@/layout/components/lay-home/components/document.vue";
 import Script from "@/layout/components/lay-home/components/script.vue";
-import Figure from "@/layout/components/lay-home/components/figure.vue";
-import Result from "@/layout/components/lay-home/components/result.vue";
 import Tips from "@/layout/components/lay-home/components/tips.vue";
 
 import type { UploadRawFile } from "element-plus";
@@ -34,23 +36,14 @@ import { ref } from "vue";
 defineOptions({
   name: "home"
 });
-const type = ref("default");
 const fileList = ref<UploadRawFile[]>([]);
-const result = ref({
-  fileName: "",
-  fileSize: ""
-});
-const handleFileChange = (newFileList: UploadRawFile[]) => {
+const status = ref("ready");
+const handleConvert = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
-  console.log(fileList.value.length);
+  status.value = "loading";
 };
-const handleGenerate = () => {
-  if (fileList.value.length === 0) {
-    return;
-  }
-  result.value.fileName =
-    "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
-  result.value.fileSize = "2.4MB";
+const handleStatusUpdate = (newStatus: string) => {
+  status.value = newStatus;
 };
 </script>
 <style scoped lang="scss">

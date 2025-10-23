@@ -3,14 +3,13 @@
     <div class="document">
       <span class="tips">请上传 PDF 或图像文件（最多转换 20 页）</span>
       <el-upload
-        v-if="audioFileList.length === 0"
+        v-if="fileList.length === 0"
         class="upload-demo"
         drag
         action="#"
         :auto-upload="false"
-        :accept="'.pdf,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg'"
+        :accept="'.pdf,.png,.jpg,.jpeg'"
         :limit="1"
-        :on-exceed="handleExceed"
         :on-change="handleFileChange"
         :show-file-list="false"
       >
@@ -22,35 +21,31 @@
           <div class="button">选择文件</div>
         </div>
       </el-upload>
-      <div v-if="audioFileList.length > 0" class="file">
+      <div v-if="fileList.length > 0" class="file">
         <div class="flex items-center gap-2">
-          <img class="w-7 h-7" :src="getFileIcon(audioFileList[0])" />
-          <span class="file-name">{{ audioFileList[0].name }}</span>
-          <span class="file-size">{{ formatFileSize(audioFileList[0].size) }}</span>
+          <img class="w-7 h-7" :src="getFileIcon(fileList[0])" />
+          <span class="file-name">{{ fileList[0].name }}</span>
+          <span class="file-size">{{ formatFileSize(fileList[0].size) }}</span>
         </div>
-        <el-icon :size="12" class="cursor-pointer ml-2" @click="removeFile(audioFileList[0])"
+        <el-icon :size="12" class="cursor-pointer ml-2" @click="removeFile"
           ><Close
         /></el-icon>
       </div>
       <div class="flex justify-between gap-8 mt-2">
-        <div class="start-button">开始转换</div>
-        <div class="clear-button">清除内容</div>
+        <div class="start-button" :class="{ disabled: fileList.length === 0 }" @click="handleConvert">开始转换</div>
+        <div class="clear-button" @click="removeFile">清除内容</div>
       </div>
       <div class="content">
         <span class="tips">上传文件/图片效果预览</span>
         <div v-if="!fileInfo.filePath" class="preview"></div>
-        <Preview v-else :fileUrl="fileInfo.filePath" :fileName="fileInfo.fileName" class="file-preview" />
-        <!-- <FilePreview style="height: 100%" /> -->
-        <!-- <MultiPagePreview fileUrl="/file/1.docx" /> -->
+        <PDF v-else class="file-preview" :fileUrl="fileInfo.filePath" :fileName="fileInfo.fileName" />
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import Recording from "./recording.vue";
-import FilePreview from "./file-preview.vue";
-import MultiPagePreview from "./multi-page-preview.vue";
+import PDF from "./pdf.vue";
 import Preview from "./preview.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
@@ -58,47 +53,14 @@ import docxIcon from "@/assets/home/file/docx.png";
 import xlsxIcon from "@/assets/home/file/xlsx.png";
 import pdfIcon from "@/assets/home/file/pdf.png";
 import pngIcon from "@/assets/home/file/png.png";
-const referenceText = ref("");
 const fileInfo = ref({
   filePath: "",
   fileType: "pdf",
   fileName: "faacd3fa-73a5-4527-9b8c-01add8c9b7b9.pdf",
   fileSize: 0
 });
-const fileUrl = ref("/file/tx.png");
-// 音频文件列表（上传组件用）
-const audioFileList = ref<UploadRawFile[]>([]);
-const audioPlayer = ref<HTMLAudioElement | null>(null);
-const playingFileName = ref("");
-const handlePlayAudio = (file: UploadRawFile) => {
-  // 1. 若还未创建音频实例，初始化一个
-  if (!audioPlayer.value) {
-    audioPlayer.value = new Audio();
-    // 监听音频播放结束，重置状态
-    audioPlayer.value.onended = () => {
-      playingFileName.value = "";
-    };
-  }
-
-  const currentPlayer = audioPlayer.value;
-  const targetUrl = URL.createObjectURL(file.raw as Blob); // 获取文件的临时URL
-
-  // 2. 判断当前是否正在播放该音频
-  if (playingFileName.value === file.name) {
-    // 正在播放 → 暂停
-    currentPlayer.pause();
-    playingFileName.value = "";
-  } else {
-    // 未播放 → 切换到该音频并播放
-    currentPlayer.src = targetUrl; // 加载目标音频
-    currentPlayer.play(); // 开始播放
-    playingFileName.value = file.name; // 记录当前播放的文件名
-  }
-};
-// 当前选中/录制的音频（用于预览）
-const currentAudio = ref<{ url: string; name: string; size: number } | null>(
-  null
-);
+const fileList = ref<UploadRawFile[]>([]);
+const emit = defineEmits(["convert"]);
 // 上传错误信息
 const uploadError = ref("");
 
@@ -111,31 +73,27 @@ const handleFileChange = (
   // 验证文件大小（100MB = 100 * 1024 * 1024 字节）
   if (file.size > 100 * 1024 * 1024) {
     uploadError.value = "文件大小不能超过100MB";
-    audioFileList.value = []; // 清空无效文件
+    fileList.value = []; // 清空无效文件
     return;
   }
 
   // 验证文件格式（虽然upload已限制，但二次验证更安全）
-  const validFormats = [".pdf", ".xlsx", ".xls", ".doc", ".docx", ".png", ".jpg", ".jpeg"];
+  const validFormats = [".pdf", ".png", ".jpg", ".jpeg"];
   const fileExt = file.name.slice(file.name.lastIndexOf("."));
   if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持pdf、xlsx、xls、doc、docx、png、jpg、jpeg格式";
+    uploadError.value = "仅支持pdf、png、jpg、jpeg格式";
   }
   if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持pdf、xlsx、xls、doc、docx、png、jpg、jpeg格式";
-    audioFileList.value = [];
+    uploadError.value = "仅支持pdf、png、jpg、jpeg格式";
+    fileList.value = [];
     return;
   }
   // 更新音频文件列表
-  audioFileList.value = compFileList;
+  fileList.value = compFileList;
 
   // 生成预览URL（本地临时URL）
   const fileUrl = URL.createObjectURL(file.raw as Blob);
-  currentAudio.value = {
-    url: fileUrl,
-    name: file.name,
-    size: file.size
-  };
+
   // 更新文件信息
   fileInfo.value = {
     filePath: fileUrl,
@@ -144,12 +102,11 @@ const handleFileChange = (
     fileSize: file.size
   };
 };
-
-const handleExceed = () => {
-  uploadError.value = "最多只能上传1个音频文件";
+const handleConvert = () => {
+  emit("convert", fileList.value);
 };
 const removeFile = () => {
-  audioFileList.value = [];
+  fileList.value = [];
   fileInfo.value = {};
 };
 const getFileIcon = (file: UploadRawFile): string => {
@@ -280,6 +237,7 @@ const formatFileSize = (size: number): string => {
       border: 1px solid #ffffff;
     }
     .file-preview {
+      position: relative;
       height: 356px;
       background: #f7f7f7;
       border-radius: 4px 4px 4px 4px;
@@ -327,9 +285,13 @@ const formatFileSize = (size: number): string => {
   }
   .start-button {
     color: #ffffff;
-    background: #7aabfd;
+    background: #2173fc;
     border-radius: 4px;
     padding: 8px 0;
+    &.disabled {
+      background: #79aafc;
+      cursor: not-allowed;
+    }
   }
   .clear-button {
     color: #202a2f;

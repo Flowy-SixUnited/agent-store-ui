@@ -2,24 +2,24 @@
   <div class="script w-124">
     <div class="flex justify-between items-center">
       <span class="tips">转化结果</span>
-      <!-- <div class="time">
+      <div v-if="status === 'loading'" class="wait-time">
+        <img
+          class="w-4 h-4 mr-2"
+          src="@/assets/home/ing.png"
+          alt="loading"
+        />加载中，当前用时：{{ formatTime(remainingTime) }} | 当前进度：{{ progress }}%
+      </div>
+      <div v-else-if="status === 'success'" class="time">
         <img
           class="w-4 h-4 mr-2"
           src="@/assets/home/success.png"
           alt="success"
-        />转化完成，共用时：2分03秒
-      </div> -->
-      <div class="wait-time">
-        <img
-          class="w-4 h-4 mr-2"
-          src="@/assets/home/ing.png"
-          alt="success"
-        />加载中，当前用时：00:36 | 当前进度：80%
+        />转化完成，共用时：{{ formatTime(totalLoadingTime) }}
       </div>
     </div>
     <div class="result-content">
       <div class="result-switch">
-       <div
+        <div
           class="item"
           v-for="(tag, index) in tagList"
           :key="index"
@@ -27,51 +27,92 @@
           :class="{ active: tag.active }"
         >
           {{ tag.name }}
-      </div>
+        </div>
       </div>
       <img class="copy-icon" src="@/assets/home/copy.png" alt="" />
-      <div class="loading-container">
+      <div v-if="status === 'loading'" class="loading-container">
         <LoadingView />
       </div>
+      <Result v-if="status === 'success'" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import type { UploadInstance, UploadRawFile } from "element-plus";
+import { ref, watch, onUnmounted } from "vue";
 import LoadingView from "./loading.vue";
-const upload = ref<UploadInstance>();
+import Result from "./result.vue";
 defineOptions({
   name: "home"
 });
-const scriptText = ref("");
+const props = defineProps({
+  fileList: {
+    type: Array,
+    required: true
+  },
+  status: {
+    type: String,
+    default: "ready"
+  }
+});
 const tagList = ref([
   { name: "MMD 渲染", active: false },
   { name: "MMD", active: true },
   { name: "Qwen.html", active: false }
 ]);
 const handleTagClick = (clickIndex: number) => {
-  // 1. 先把所有标签的 active 设为 false
   tagList.value.forEach((tag: { active: boolean }) => {
     tag.active = false;
   });
-  // 2. 再把当前点击标签的 active 设为 true
   tagList.value[clickIndex].active = true;
 };
-const fileList = ref<UploadRawFile[]>([]);
-const emit = defineEmits(["update:fileList"]);
-const handleFileChange = (
-  file: UploadRawFile,
-  compFileList: UploadRawFile[]
-) => {
-  fileList.value = compFileList;
-  emit("update:fileList", fileList.value);
+const emit = defineEmits(["update:status"]);
+
+const TOTAL_LOADING_SEC = 10;
+const remainingTime = ref(0); // 剩余倒计时（秒）
+const progress = ref(0); // 加载进度（0-100%）
+const totalLoadingTime = ref(TOTAL_LOADING_SEC); // 总耗时
+let timer: NodeJS.Timeout | null = null; // 定时器实例（用于清除）
+const formatTime = (seconds: number) => {
+  const min = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const sec = (seconds % 60).toString().padStart(2, "0");
+  return `${min}:${sec}`;
 };
-const formatFileSize = (size: number): string => {
-  if (size < 1024) return `${size}B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)}KB`;
-  return `${(size / (1024 * 1024)).toFixed(1)}MB`;
-};
+
+watch(
+  () => props.status,
+  newStatus => {
+    // 清除旧定时器（避免重复触发）
+    if (timer) clearInterval(timer);
+
+    if (newStatus === "loading") {
+      remainingTime.value = 0;
+      progress.value = 0;
+
+      // 每秒更新一次：剩余时间、进度
+      timer = setInterval(() => {
+        remainingTime.value++;
+        // 进度计算：(已用时间 / 总时间) * 100%
+        progress.value = Math.round(
+          (remainingTime.value / TOTAL_LOADING_SEC) * 100
+        );
+
+        if (remainingTime.value >= TOTAL_LOADING_SEC) {
+          clearInterval(timer); // 清除定时器
+          emit("update:status", "success");
+          totalLoadingTime.value = TOTAL_LOADING_SEC; // 记录总耗时
+        }
+      }, 1000); // 1秒 = 1000毫秒
+    }
+  },
+  { immediate: true } // 初始渲染时就执行一次监听逻辑
+);
+
+// 组件卸载时清除定时器（避免内存泄漏）
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
 </script>
 <style scoped lang="scss">
 .script {
@@ -103,7 +144,7 @@ const formatFileSize = (size: number): string => {
     align-items: center;
   }
   .wait-time {
-    background: #DEEDFB;
+    background: #deedfb;
     border-radius: 4px;
     padding: 4px 8px;
     font-family:
@@ -111,7 +152,7 @@ const formatFileSize = (size: number): string => {
       HarmonyOS Sans SC;
     font-weight: 400;
     font-size: 12px;
-    color: #2173FC;
+    color: #2173fc;
     display: flex;
     align-items: center;
   }
@@ -122,9 +163,9 @@ const formatFileSize = (size: number): string => {
     position: relative;
     margin-top: 20px;
     height: 508px;
-    background: #F7F7F7;
+    background: #f7f7f7;
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #FFFFFF;
+    border: 1px solid #ffffff;
     padding: 12px;
     .result-switch {
       width: 230px;
@@ -166,5 +207,4 @@ const formatFileSize = (size: number): string => {
 :deep(.el-upload) {
   width: 100%;
 }
-
 </style>

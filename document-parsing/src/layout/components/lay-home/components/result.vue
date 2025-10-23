@@ -1,89 +1,43 @@
-<template>
-  <div class="result">
-    <div class="flex justify-between items-center">
-      <div class="tips">生成结果</div>
-      <div class="time">
-        <img
-          class="w-4 h-4 mr-2"
-          src="@/assets/home/success.png"
-          alt="success"
-        />生成完成，共用时：2分03秒
-      </div>
-    </div>
-    <div class="return-file">
-      <div class="flex items-center">
-        <span class="file-name">{{ result.fileName }}</span>
-        <span class="file-size">{{ result.fileSize }}</span>
-      </div>
-      <img
-        class="w-6 h-6 cursor-pointer"
-        src="@/assets/home/download.png"
-        alt="download"
-      />
-    </div>
-  </div>
-</template>
 <script setup lang="ts">
-import { ref } from "vue";
-const result = ref({
-  fileName:
-    "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip",
-  fileSize: "2.4MB"
+import { ref, computed } from "vue";
+import VuePdfEmbed from "vue-pdf-embed";
+
+defineOptions({
+  name: "Pdf"
 });
+const pdfRef = ref<any>();
+const pageCount = ref(1);
+const loading = ref(true);
+const currentPage = ref(null);
+const currentRotation = ref(0);
+const rotations = [0, 90, 180, 270];
+// const fileType = computed(() => {
+//   const ext = props.fileName.split(".").pop()?.toLowerCase() || "";
+//   return ext;
+// });
+const source =
+  "https://xiaoxian521.github.io/hyperlink/pdf/Cookie%E5%92%8CSession%E5%8C%BA%E5%88%AB%E7%94%A8%E6%B3%95.pdf";
+
+const handleDocumentRender = () => {
+  loading.value = false;
+  console.log(pdfRef.value);
+  pageCount.value = pdfRef.value?.pageCount;
+};
 </script>
-<style scoped lang="scss">
-.result {
-  margin: 24px;
-  padding: 16px;
-  background: #ffffff;
-  box-shadow: 0px 4px 10px 0px rgba(208, 208, 208, 0.3);
-  border-radius: 8px;
-  .tips {
-    font-family: Roboto, Roboto;
-    font-weight: 500;
-    font-size: 12px;
-    color: #2d5bff;
-    line-height: 16px;
-    padding-left: 10px;
-    border-left: 4px solid #2d5bff;
-  }
-  .time {
-    background: #e8fbde;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-family:
-      HarmonyOS Sans SC,
-      HarmonyOS Sans SC;
-    font-weight: 400;
-    font-size: 12px;
-    color: #61c72e;
-    display: flex;
-    align-items: center;
-  }
-  .return-file {
-    background: #f7f7f7;
-    border-radius: 4px 4px 4px 4px;
-    border: 1px solid #ffffff;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    .file-name,
-    .file-size {
-      font-family:
-        HarmonyOS Sans SC,
-        HarmonyOS Sans SC;
-      font-weight: 400;
-      font-size: 12px;
-    }
-    .file-name {
-      color: #2173fc;
-    }
-    .file-size {
-      color: #97a0c3;
-      margin-left: 8px;
-    }
-  }
-}
-</style>
+
+<template>
+  <el-card shadow="never" class="mt-[12px]">
+    <div class="h-[calc(100vh-420px)]">
+      <el-scrollbar>
+        <vue-pdf-embed
+          ref="pdfRef"
+          class="h-full container overflow-auto"
+          :rotation="rotations[currentRotation]"
+          :page="currentPage"
+          :source="source"
+          @rendered="handleDocumentRender"
+        />
+      </el-scrollbar>
+    </div>
+  </el-card>
+</template>
