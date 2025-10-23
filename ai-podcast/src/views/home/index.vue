@@ -49,7 +49,11 @@
       生成对话音频
     </div>
     <div v-if="result.fileName">
-      <Result :audioInfo="audioInfo" />
+      <Result
+        :audioInfo="audioInfo"
+        :status="status"
+        @update:status="handleStatusUpdate"
+      />
     </div>
   </div>
 </template>
@@ -71,6 +75,7 @@ const result = ref({
   fileName: "",
   fileSize: ""
 });
+const status = ref("ready");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
   console.log(fileList.value.length);
@@ -82,19 +87,31 @@ const handleGenerate = () => {
   result.value.fileName =
     "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
   result.value.fileSize = "2.4MB";
+  status.value = "loading";
 };
 const audioInfo = ref({
   url: "",
   name: "",
   size: 0
 });
-const handlePlayAudio1 = (audio: { url: string; name: string; size: number }) => {
+const handlePlayAudio1 = (audio: {
+  url: string;
+  name: string;
+  size: number;
+}) => {
   audioInfo.value = audio;
   console.log(audio);
 };
-const handlePlayAudio2 = (audio: { url: string; name: string; size: number }) => {
+const handlePlayAudio2 = (audio: {
+  url: string;
+  name: string;
+  size: number;
+}) => {
   audioInfo.value = audio;
   console.log(audio);
+};
+const handleStatusUpdate = (newStatus: string) => {
+  status.value = newStatus;
 };
 </script>
 <style scoped lang="scss">
