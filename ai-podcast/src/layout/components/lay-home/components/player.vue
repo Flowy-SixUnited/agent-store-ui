@@ -11,9 +11,9 @@
       ></div>
     </div>
     <el-slider v-model="currentTime" :max="duration || 100" placement="bottom" :show-tooltip="false" @input="seek"/>
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between btn">
       <span class="time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-6 operate">
         <img class="icon" src="@/assets/home/audio/rewind.png" alt="forward" @click="rewind" />
         <img class="icon" :src="isPlaying ? playingIcon : playIcon" alt="play" @click="togglePlay"/>
         <img class="icon" src="@/assets/home/audio/forward.png" alt="rewind" @click="fastForward" />
@@ -156,6 +156,15 @@ watch(() => props.audioUrl, (newUrl) => {
     font-size: 13px;
     color: #202A2F;
     line-height: 18px;
+  }
+  .btn {
+    position: relative;
+    .operate {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      left: 50%;
+    }
   }
 }
 :deep(.el-slider) {

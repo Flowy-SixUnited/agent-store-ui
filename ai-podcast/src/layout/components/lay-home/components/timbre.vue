@@ -1,6 +1,6 @@
 <template>
   <div class="body">
-    <div class="mark">音色1</div>
+    <div class="mark">音色{{ title }}</div>
     <div class="audio">
       <el-upload
         v-if="audioFileList.length === 0"
@@ -74,6 +74,12 @@ import Recording from "./recording.vue";
 import Player from "./player.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
+const props = defineProps({
+  title: {
+    type: String,
+    default: ""
+  }
+});
 const referenceText = ref("");
 // 音频文件列表（上传组件用）
 const audioFileList = ref<UploadRawFile[]>([]);
@@ -81,7 +87,7 @@ const audioPlayer = ref<HTMLAudioElement | null>(null);
 const playingFileName = ref("");
 const emit = defineEmits(["playAudio1", "playAudio2"]);
 const handlePlayAudio = (file: UploadRawFile) => {
-  // 1. 若还未创建音频实例，初始化一个
+  // 若还未创建音频实例，初始化一个
   if (!audioPlayer.value) {
     audioPlayer.value = new Audio();
     // 监听音频播放结束，重置状态
@@ -93,7 +99,7 @@ const handlePlayAudio = (file: UploadRawFile) => {
   const currentPlayer = audioPlayer.value;
   const targetUrl = URL.createObjectURL(file.raw as Blob); // 获取文件的临时URL
 
-  // 2. 判断当前是否正在播放该音频
+  // 判断当前是否正在播放该音频
   if (playingFileName.value === file.name) {
     // 正在播放 → 暂停
     currentPlayer.pause();
@@ -112,7 +118,7 @@ const currentAudio = ref<{ url: string; name: string; size: number } | null>(
 // 上传错误信息
 const uploadError = ref("");
 
-// 1. 处理文件选择/变化
+//  处理文件选择/变化
 const handleFileChange = (
   file: UploadRawFile,
   compFileList: UploadRawFile[]
@@ -150,12 +156,12 @@ const handleFileChange = (
   emit("playAudio1", currentAudio.value);
 };
 
-// 2. 处理文件超出限制（已限制1个，再次选择时触发）
+// 处理文件超出限制（已限制1个，再次选择时触发）
 const handleExceed = () => {
   uploadError.value = "最多只能上传1个音频文件";
 };
 
-// 3. 手动触发文件选择（点击“选择文件”按钮）
+// 手动触发文件选择（点击“选择文件”按钮）
 const handleSelectFile = () => {
   // 触发upload组件的文件选择 dialog
   const uploadInput = document.querySelector(
@@ -164,7 +170,7 @@ const handleSelectFile = () => {
   uploadInput?.click();
 };
 
-// 4. 处理录音组件返回的音频（假设Recording组件会通过事件传递录音文件）
+// 处理录音组件返回的音频（假设Recording组件会通过事件传递录音文件）
 const handleAudioGenerated = (audio: {
   url: string;
   name: string;
@@ -175,7 +181,7 @@ const handleAudioGenerated = (audio: {
   currentAudio.value = audio;
 };
 
-// 5. 清除当前音频（释放URL资源）
+// 清除当前音频（释放URL资源）
 const clearAudio = () => {
   if (currentAudio.value) {
     URL.revokeObjectURL(currentAudio.value.url); // 释放临时URL，避免内存泄漏
@@ -184,7 +190,7 @@ const clearAudio = () => {
   audioFileList.value = [];
 };
 
-// 6. 格式化文件大小（字节 → KB/MB）
+// 格式化文件大小（字节 → KB/MB）
 const formatFileSize = (size: number): string => {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;

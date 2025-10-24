@@ -21,10 +21,10 @@
     </div>
     <div v-if="type === 'clone'" class="tools">
       <div class="tool-item">
-        <Audio @playAudio1="handlePlayAudio1" />
+        <Audio title="1" @playAudio1="handlePlayAudio1" />
       </div>
       <div class="tool-item">
-        <Audio @playAudio2="handlePlayAudio2" />
+        <Audio title="2" @playAudio2="handlePlayAudio2" />
       </div>
       <div class="tool-item">
         <Script @update:fileList="handleFileChange" />
@@ -32,10 +32,10 @@
     </div>
     <div v-else class="tools">
       <div class="tool-item">
-        <Figure type="girl" />
+        <Figure type="girl" title="1" />
       </div>
       <div class="tool-item">
-        <Figure type="boy" />
+        <Figure type="boy" title="2" />
       </div>
       <div class="tool-item">
         <Script @update:fileList="handleFileChange" />
@@ -78,7 +78,6 @@ const result = ref({
 const status = ref("ready");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
-  console.log(fileList.value.length);
 };
 const handleGenerate = () => {
   if (fileList.value.length === 0) {

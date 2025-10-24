@@ -1,7 +1,7 @@
 <template>
   <div class="body">
     <div class="mark" :class="curType === 'girl' ? 'girl' : 'boy'">
-      选择说话人1
+      选择说话人{{ title }}
     </div>
     <div class="container">
       <div class="flex mt-4 gap-8 items-center justify-center">
@@ -115,6 +115,10 @@ import boyVoiceActive from "@/assets/home/boy-voice-active.png";
 
 const props = defineProps({
   type: {
+    type: String,
+    default: ""
+  },
+  title: {
     type: String,
     default: ""
   }
