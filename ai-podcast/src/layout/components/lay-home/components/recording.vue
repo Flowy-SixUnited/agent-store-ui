@@ -50,6 +50,7 @@ import { ref, onUnmounted, computed } from "vue";
 import pausePlay from "@/assets/home/pause-play.png";
 import startPlay from "@/assets/home/start-play.png";
 import { Close } from "@element-plus/icons-vue";
+import { usePodcastStoreHook } from "@/store/modules/podcast";
 // 1. 定义核心类型，明确数据结构
 // 音频文件信息类型
 interface AudioFile {
@@ -96,7 +97,6 @@ const startRecording = async (): Promise<void> => {
       await new Promise(resolve => {
         tempAudio.onloadedmetadata = resolve; // 加载元数据（含时长）后触发
       });
-      console.log("音频时长:", tempAudio.duration);
       // 严格按照 AudioFile 类型添加数据
       audioFiles.value.push({
         name: `recording_${Date.now()}.${getFileExtension(audioBlob.type)}`,
@@ -108,8 +108,29 @@ const startRecording = async (): Promise<void> => {
       // 默认选中最新录音
       if (audioFiles.value.length > 0) {
         currentAudioIndex.value = audioFiles.value.length - 1;
-        console.log("音频时长:", currentAudioIndex.value);
       }
+      console.log(audioFiles.value);
+      const formdata = new FormData();
+      const audioFile = new File([audioBlob], audioFiles.value[0].name, { type: "audio/wav" });
+      formdata.append("file", audioFile);
+      console.log(audioFile);
+      usePodcastStoreHook()
+        .upload(formdata)
+        .then(res => {
+          console.log(res);
+          // 生成预览URL（本地临时URL）
+          // const fileUrl = URL.createObjectURL(file.raw as Blob);
+          // currentAudio.value = {
+          //   url: fileUrl,
+          //   name: res.filename,
+          //   size: file.size
+          // };
+          // if (props.title == "1") {
+          //   emit("playAudio1", currentAudio.value);
+          // } else if (props.title == "2") {
+          //   emit("playAudio2", currentAudio.value);
+          // }
+        });
     };
 
     mediaRecorder.value.start();

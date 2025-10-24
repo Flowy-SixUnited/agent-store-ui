@@ -49,20 +49,22 @@
         <Recording />
       </div>
       <div class="content">
-        <span class="tips">音频1文本</span>
+        <span class="tips">音频{{ title }}文本</span>
         <el-input
           v-if="audioFileList.length === 0"
           v-model="referenceText"
           :autosize="{ minRows: 7, maxRows: 7 }"
           type="textarea"
-          placeholder="音频1的参考文案"
+          :placeholder="`音频${title}的参考文案`"
+          @change="handleTextChange"
         />
         <el-input
           v-else
           v-model="referenceText"
           :autosize="{ minRows: 8, maxRows: 8 }"
           type="textarea"
-          placeholder="音频1的参考文案"
+          :placeholder="`音频${title}的参考文案`"
+          @change="handleTextChange"
         />
       </div>
     </div>
@@ -74,6 +76,7 @@ import Recording from "./recording.vue";
 import Player from "./player.vue";
 import type { UploadRawFile } from "element-plus";
 import { Close } from "@element-plus/icons-vue";
+import { usePodcastStoreHook } from "@/store/modules/podcast";
 const props = defineProps({
   title: {
     type: String,
@@ -85,7 +88,8 @@ const referenceText = ref("");
 const audioFileList = ref<UploadRawFile[]>([]);
 const audioPlayer = ref<HTMLAudioElement | null>(null);
 const playingFileName = ref("");
-const emit = defineEmits(["playAudio1", "playAudio2"]);
+const emit = defineEmits(["playAudio1", "playAudio2", "text1", "text2"]);
+
 const handlePlayAudio = (file: UploadRawFile) => {
   // 若还未创建音频实例，初始化一个
   if (!audioPlayer.value) {
@@ -117,12 +121,19 @@ const currentAudio = ref<{ url: string; name: string; size: number } | null>(
 );
 // 上传错误信息
 const uploadError = ref("");
-
+const handleTextChange = () => {
+  if (props.title == "1") {
+    emit("text1", referenceText.value);
+  } else if (props.title == "2") {
+    emit("text2", referenceText.value);
+  }
+};
 //  处理文件选择/变化
 const handleFileChange = (
   file: UploadRawFile,
   compFileList: UploadRawFile[]
 ) => {
+  console.log(compFileList);
   uploadError.value = ""; // 清空错误信息
 
   // 验证文件大小（100MB = 100 * 1024 * 1024 字节）
@@ -143,17 +154,26 @@ const handleFileChange = (
     audioFileList.value = [];
     return;
   }
+  const formdata = new FormData();
+  formdata.append("file", file.raw);
+  usePodcastStoreHook()
+    .upload(formdata)
+    .then(res => {
+      // 生成预览URL（本地临时URL）
+      const fileUrl = URL.createObjectURL(file.raw as Blob);
+      currentAudio.value = {
+        url: fileUrl,
+        name: res.filename,
+        size: file.size
+      };
+      if (props.title == "1") {
+        emit("playAudio1", currentAudio.value);
+      } else if (props.title == "2") {
+        emit("playAudio2", currentAudio.value);
+      }
+    });
   // 更新音频文件列表
   audioFileList.value = compFileList;
-
-  // 生成预览URL（本地临时URL）
-  const fileUrl = URL.createObjectURL(file.raw as Blob);
-  currentAudio.value = {
-    url: fileUrl,
-    name: file.name,
-    size: file.size
-  };
-  emit("playAudio1", currentAudio.value);
 };
 
 // 处理文件超出限制（已限制1个，再次选择时触发）
