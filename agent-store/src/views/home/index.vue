@@ -1,155 +1,160 @@
 <template>
-  <div class="home">
-    <div class="header" :style="{ backgroundImage: `url(${bgUrl})` }">
-      <div class="content">
-        <img class="icon" src="@/assets/home/icon.png" alt="icon" />
-        <span class="title"
-          >AI 播客智能体是 AI + 播客新应用，可自动选题 / 脚本 / 语音 / 翻译，凭
-          NLP
-          与知识图谱快出高质量内容，支持智能剪辑配乐，还能互动收反馈优化，降创作门槛、推行业发展。</span
-        >
-      </div>
-      <div class="select">
-        <span class="mr-2">语音模式：</span>
-        <div>
-          <el-radio-group v-model="type">
-            <el-radio value="default">默认模式</el-radio>
-            <el-radio value="clone">克隆模式</el-radio>
-          </el-radio-group>
+  <div class="agent bg-[#FCFCFC]">
+    <div class="bg-[#ffffff] p-6 flex items-center justify-between header">
+      <span>Agent Store</span>
+      <div class="new-btn">新增</div>
+    </div>
+    <div class="p-6 flex flex-wrap gap-6">
+      <div
+        v-for="(item, index) in agentList"
+        :key="index"
+        class="item"
+        :class="{ active: item.running }"
+        @click="handleItemClick(index)"
+      >
+        <div class="flex gap-2 items-center">
+          <img class="h-6 w-6" :src="item.icon" />
+          <span class="title">{{ item.title }}</span>
         </div>
+        <span class="desc">{{ item.desc }}</span>
+        <div class="run-btn">开启运行</div>
       </div>
     </div>
-    <div v-if="type === 'clone'" class="tools">
-      <div class="tool-item">
-        <Audio />
-      </div>
-      <div class="tool-item">
-        <Audio />
-      </div>
-      <div class="tool-item">
-        <Script />
-      </div>
-    </div>
-    <div v-else class="tools">
-      <div class="tool-item">
-        <Figure type="girl" />
-      </div>
-      <div class="tool-item">
-        <Figure type="boy" />
-      </div>
-      <div class="tool-item">
-        <Script />
-      </div>
-    </div>
-    <div class="generate">生成对话音频</div>
   </div>
 </template>
 <script setup lang="ts">
-import bgUrl from "@/assets/home/header-bg.png";
-import Audio from "@/layout/components/lay-home/components/timbre.vue";
-import Script from "@/layout/components/lay-home/components/script.vue";
-import Figure from "@/layout/components/lay-home/components/figure.vue";
 import { ref } from "vue";
+import aiPodcastIcon from "@/assets/home/ai-podcast.png";
+import textToPicIcon from "@/assets/home/text-to-pic.png";
+import textToVideoIcon from "@/assets/home/text-to-video.png";
+import documentParseIcon from "@/assets/home/document-parse.png";
+import aiChatIcon from "@/assets/home/ai-chat.png";
+import coStormIcon from "@/assets/home/co-storm.png";
+import meetingIcon from "@/assets/home/meeting.png";
 defineOptions({
-  name: "home"
+  name: "home",
 });
-const type = ref("default");
-const referenceText = ref("");
+
+const agentList = ref([
+  {
+    icon: aiPodcastIcon,
+    title: "AI博客",
+    desc: "一站式智能辅助工具，智能内容生成、内容质量优化、运营自动化、个性化定制赋能博客全流程",
+    link: "",
+    running: true,
+    status: "unload",
+  },
+  {
+    icon: textToPicIcon,
+    title: "文生图",
+    desc: "可将文字描述精准转化为图像，赋能创作、设计、营销等多元场景",
+    link: "",
+    running: false,
+    status: "loaded",
+  },
+  {
+    icon: textToVideoIcon,
+    title: "文生视频",
+    desc: "可将文字描述生成动态视频，支持风格定制，赋能多场景且提升视频制作效率",
+    link: "",
+    running: false,
+    status: "loading",
+  },
+  {
+    icon: documentParseIcon,
+    title: "文档解析",
+    desc: "可解析 PDF/Word 等多格式文档，提取文本、表格、图片信息并结构化，赋能办公、科研等场景",
+    link: "",
+    running: false,
+    status: "unload",
+  },
+  {
+    icon: aiChatIcon,
+    title: "智能客服",
+    desc: "可多渠道实时响应咨询、自动处理常见问题，赋能企业服务、售后等场景",
+    link: "",
+    running: false,
+    status: "unload",
+  },
+  {
+    icon: coStormIcon,
+    title: "Co-STORM",
+    desc: "支持多主体协同研讨，拆解问题、生成方案并管控流程，赋能企业决策、项目攻坚等场景",
+    link: "",
+    running: false,
+    status: "unload",
+  },
+  {
+    icon: meetingIcon,
+    title: "会议纪要&同声传译",
+    desc: "可实时多语言同声传译、自动整理会议议题 / 决议 / 待办，赋能高效会议管理",
+    link: "",
+    running: false,
+    status: "unload",
+  },
+]);
+const handleItemClick = (clickedIndex: number) => {
+  agentList.value = agentList.value.map((item, index) => ({
+    ...item,
+    running: index === clickedIndex,
+  }));
+};
 </script>
 <style scoped lang="scss">
-.home {
-  background: #fcfcfc;
+.agent {
   height: 100vh;
-  font-family: HarmonyOS Sans SC;
-}
-.header {
-  height: 136px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  .content {
-    display: flex;
-    align-items: center;
-    padding-top: 18px;
-    padding-left: 24px;
+  .header {
+    border-bottom: 1px solid #eef2f7;
   }
-  .icon {
-    width: 40px;
-    height: 45px;
-    margin-right: 16px;
-  }
-  .title {
-    font-family: HarmonyOS Sans SC;
-    font-weight: 500;
+  .new-btn {
+    background-color: #202a2f;
+    font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+    font-weight: 400;
     font-size: 13px;
-    color: #2e5de0;
-    line-height: 18px;
-  }
-  .select {
-    background: #ffffff;
-    box-shadow: 0px 4px 10px 0px rgba(208, 208, 208, 0.3);
+    color: #ffffff;
+    text-align: center;
+    padding: 9px 25px;
     border-radius: 8px;
-    font-family: HarmonyOS Sans SC;
-    font-weight: 500;
-    font-size: 13px;
-    color: #202a2f;
-    line-height: 15px;
-    padding: 16px 24px;
-    margin: 16px 24px;
+  }
+  .item {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 12px;
+    width: 314px;
+    padding: 16px;
+    background: #ffffff;
+    box-shadow: 0px 4px 10px 0px rgba(173, 192, 202, 0.3);
+    border-radius: 8px 8px 8px 8px;
+    border: 1px solid #ffffff;
+    &.active {
+      border: 1px solid #1849eb;
+    }
+    .title {
+      color: #101011;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 19px;
+    }
+    .desc {
+      color: #666667;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+    .run-btn {
+      display: flex;
+      width: 64px;
+      border-radius: 4px 4px 4px 4px;
+      border: 1px solid #1096fd;
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 500;
+      font-size: 12px;
+      color: #1096fd;
+      text-align: center;
+      padding: 5px 0;
+      justify-content: center;
+    }
   }
-}
-
-:deep(.el-radio__input.is-checked .el-radio__inner) {
-  background: white;
-  border-color: #202a2f;
-}
-
-:deep(.el-radio__input.is-checked .el-radio__inner:after) {
-  background-color: #202a2f;
-}
-:deep(.el-radio__inner:hover),
-:deep(.el-radio__input.is-checked .el-radio__inner) {
-  background: #ffffff;
-  border-color: #202a2f;
-}
-:deep(.el-radio__input.is-checked + .el-radio__label) {
-  color: #202a2f;
-}
-:deep(.el-radio__inner) {
-  height: 16px;
-  width: 16px;
-}
-:deep(.el-radio__inner:after) {
-  height: 8px;
-  width: 8px;
-}
-.tools {
-  display: flex;
-  margin: 24px;
-  gap: 24px;
-
-  .tool-item {
-    flex: 1;
-  }
-  .tool-item > * {
-    width: 100%; /* 让子组件继承父元素的等分宽度 */
-    min-width: 0; /* 取消最小宽度限制，确保空间不足时能收缩 */
-  }
-}
-
-.generate {
-  margin: 0 24px;
-  padding: 9px 0;
-  background: #79aafc;
-  border-radius: 4px;
-  font-family: HarmonyOS Sans SC;
-  font-weight: 400;
-  font-size: 13px;
-  color: #ffffff;
-  line-height: 15px;
-  text-align: center;
-  cursor: pointer;
 }
 </style>
