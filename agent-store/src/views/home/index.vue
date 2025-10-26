@@ -1,6 +1,6 @@
 <template>
   <div class="agent bg-[#FCFCFC]">
-    <div class="bg-[#ffffff] p-6 flex items-center justify-between header">
+    <div class="bg-[#ffffff] flex items-center justify-between header">
       <span>Agent Store</span>
       <div class="new-btn">新增</div>
     </div>
@@ -16,14 +16,61 @@
           <img class="h-6 w-6" :src="item.icon" />
           <span class="title">{{ item.title }}</span>
         </div>
-        <span class="desc">{{ item.desc }}</span>
-        <div class="run-btn">开启运行</div>
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          :content="item.desc"
+          placement="bottom"
+        >
+          <span class="desc">{{ item.desc }}</span>
+        </el-tooltip>
+        <div class="flex items-center justify-between">
+          <div v-if="item.status == 'unload'">
+            <div v-if="curAgent == item.title" class="run-btn">开始运行</div>
+            <el-tooltip
+              v-else
+              class="box-item"
+              effect="dark"
+              placement="bottom"
+            >
+              <div
+                class="run-btn"
+                style="
+                  color: #202a2f;
+                  background: #e6e6e6;
+                  border: 1px solid #e6e6e6;
+                "
+              >
+                开始运行
+              </div>
+              <template #content>
+                <div class="flex items-center gap-1 run-tips">
+                  <span
+                    >⚠️当前{{ curAgent }}Agent正在运行，是否停止{{
+                      curAgent
+                    }}Agent运行并开启该Agent？</span
+                  >
+                  <el-button type="info" size="small">否</el-button>
+                  <el-button size="small">是</el-button>
+                </div>
+              </template>
+            </el-tooltip>
+          </div>
+
+          <div
+            v-else
+            :class="item.status == 'loading' ? 'loading-btn' : 'loaded-btn'"
+          >
+            {{ item.status == "loading" ? "加载中" : "加载完成" }}
+          </div>
+          <div v-if="item.status == 'loaded'" class="go-to-btn">前往使用</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import aiPodcastIcon from "@/assets/home/ai-podcast.png";
 import textToPicIcon from "@/assets/home/text-to-pic.png";
 import textToVideoIcon from "@/assets/home/text-to-video.png";
@@ -93,6 +140,10 @@ const agentList = ref([
     status: "unload",
   },
 ]);
+const curAgent = computed(() => {
+  const runningAgent = agentList.value.find((item) => item.running);
+  return runningAgent ? runningAgent.title : "";
+});
 const handleItemClick = (clickedIndex: number) => {
   agentList.value = agentList.value.map((item, index) => ({
     ...item,
@@ -105,6 +156,14 @@ const handleItemClick = (clickedIndex: number) => {
   height: 100vh;
   .header {
     border-bottom: 1px solid #eef2f7;
+    padding: 24px;
+    span {
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 700;
+      font-size: 14px;
+      color: #202a2f;
+      line-height: 15px;
+    }
   }
   .new-btn {
     background-color: #202a2f;
@@ -141,6 +200,10 @@ const handleItemClick = (clickedIndex: number) => {
       font-size: 13px;
       font-weight: 400;
       line-height: 18px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
     }
     .run-btn {
       display: flex;
@@ -154,6 +217,56 @@ const handleItemClick = (clickedIndex: number) => {
       text-align: center;
       padding: 5px 0;
       justify-content: center;
+      &.disable {
+        color: #202a2f;
+        background: #e6e6e6;
+        border: 1px solid #e6e6e6;
+      }
+    }
+    .loading-btn {
+      width: 64px;
+      background: #d3f4ff;
+      border-radius: 4px 4px 4px 4px;
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 500;
+      font-size: 12px;
+      color: #1096fd;
+      padding: 5px 14px;
+    }
+    .loaded-btn {
+      width: 64px;
+      background: #d3ffd7;
+      border-radius: 4px 4px 4px 4px;
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 500;
+      font-size: 12px;
+      color: #00a64b;
+      padding: 5px 8px;
+    }
+    .go-to-btn {
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 400;
+      font-size: 13px;
+      color: #202a2f;
+      line-height: 15px;
+      text-align: center;
+      font-style: normal;
+      text-decoration-line: underline;
+    }
+    .run-tips {
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-weight: 400;
+      font-size: 12px;
+      .no-btn {
+        color: #ffffff;
+        background-color: #808080;
+        width: 48px;
+      }
+      .yes-btn {
+        color: #000000;
+        background-color: #ffffff;
+        padding: 3px 18px;
+      }
     }
   }
 }
