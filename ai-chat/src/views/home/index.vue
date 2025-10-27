@@ -1,23 +1,28 @@
 <template>
-  <div class="main bg-[#fcfcfc]">
-    <div class="title">你好，开始美好的一天！</div>
-    <div class="content">
-      <!-- <el-input
-        v-model="textarea"
-        :rows="4"
-        type="textarea"
-        placeholder="请问我有什么能帮助你的？"
-      /> -->
-      <Inputs ref="inputsRef" v-model:inputs="inputValue" :autosize="autosize" @send-message="sendMessage" />
-      <div class="flex items-center justify-between mt-2">
-        <div
-          class="flex items-center justify-center bg-[#F0F0F0] h-8 w-8 rounded-[50px] cursor-pointer"
-        >
-          <el-icon><Plus /></el-icon>
+  <div class="flex flex-col items-center bg-[#fcfcfc]">
+    <div v-if="!isConversation" class="main">
+      <div class="title">你好，开始美好的一天！</div>
+      <Inputs
+        ref="inputsRef"
+        v-model:inputs="inputValue"
+        :autosize="autosize"
+        @send-message="sendMessage"
+      />
+    </div>
+    <div
+      v-else
+      class="flex flex-col justify-between h-screen position-relative"
+    >
+      <Chat :content="inputValue" />
+      <div class="input-fixed">
+        <div class="new-chat">
+          <el-icon :size="12" color="#202B2F"><Plus /></el-icon> 开启新会话
         </div>
-        <img
-          class="h-8 w-8 cursor-pointer"
-          :src="!inputValue ? disableSendIcon : sendIcon"
+        <Inputs
+          ref="inputsRef"
+          v-model:inputs="inputValue"
+          :autosize="autosize"
+          @send-message="sendMessage"
         />
       </div>
     </div>
@@ -27,16 +32,17 @@
 import { ref } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import Inputs from "@/layout/components/lay-home/components/inputs.vue";
-import disableSendIcon from "@/assets/home/disable-send.png";
-import sendIcon from "@/assets/home/send.png";
+import Chat from "@/layout/components/lay-home/components/chat.vue";
 defineOptions({
   name: "home"
 });
-const textarea = ref("");
 const inputValue = ref("");
 const autosize = ref({ minRows: 3, maxRows: 12 });
+const isConversation = ref(false);
 // 发送消息
 const sendMessage = () => {
+  autosize.value = { minRows: 1.5, maxRows: 12 };
+  isConversation.value = true;
   // if (isNew.value && !disabled.value) {
   //   // 过滤失败的文件
   //   const files = filelist.value.filter(item => item.status === 'success')
@@ -85,26 +91,36 @@ const sendMessage = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  .title {
+    padding-top: 172px;
+    font-family: HarmonyOS Sans SC;
+    font-weight: 700;
+    font-size: 32px;
+    color: #1f2937;
+    line-height: 32px;
+    text-align: center;
+  }
 }
-.title {
-  padding-top: 172px;
-  font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
-  font-weight: 700;
-  font-size: 32px;
-  color: #1f2937;
-  line-height: 32px;
-  text-align: center;
-}
-.content {
-  margin: 40px auto;
-  width: 800px;
-  min-height: 160px;
-  background: #ffffff;
-  box-shadow: 0px 0px 10px 0px rgba(176, 198, 212, 0.3);
-  border-radius: 12px;
-  padding: 16px 24px;
+.input-fixed {
+  position: absolute;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  .new-chat {
+    width: 104px;
+    background: #ffffff;
+    box-shadow: 0px 4px 10px 0px rgba(83, 100, 131, 0.22);
+    border-radius: 100px;
+    padding: 5px 8px;
+    font-family: HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #202b2f;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
 }
 </style>

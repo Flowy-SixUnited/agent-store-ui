@@ -1,48 +1,61 @@
 <template>
-  <div class="input-area-wrap">
-    <div class="input-wrap">
-      <slot name="agent"></slot>
-      <div w-full>
-        <el-input
-          ref="inputRef"
-          v-model="inputValue"
-          :type="type"
-          :rows="rows"
-          :autosize="autosize"
-          resize="none"
-          :placeholder="placeholder"
-          @keydown.enter="keyCodeAction"
-        />
-        <div class="text-placeholder"></div>
+  <div class="content">
+    <div class="input-area-wrap">
+      <div class="input-wrap">
+        <div w-full>
+          <el-input
+            ref="inputRef"
+            v-model="inputValue"
+            :type="type"
+            :rows="rows"
+            :autosize="autosize"
+            resize="none"
+            :placeholder="placeholder"
+            @keydown.enter="keyCodeAction"
+          />
+        </div>
       </div>
     </div>
-    <slot></slot>
+    <div class="flex items-center justify-between mt-2">
+      <div
+        class="flex items-center justify-center bg-[#F0F0F0] h-8 w-8 rounded-[50px] cursor-pointer"
+      >
+        <el-icon><Plus /></el-icon>
+      </div>
+      <img
+        class="h-8 w-8 cursor-pointer"
+        :src="!inputValue ? disableSendIcon : sendIcon"
+        @click="sendMessage"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, toRefs } from 'vue';
-
+import { ref, watch, toRefs } from "vue";
+import { Plus } from "@element-plus/icons-vue";
+import disableSendIcon from "@/assets/home/disable-send.png";
+import sendIcon from "@/assets/home/send.png";
 const props = defineProps({
   inputs: {
     type: String,
-    default: '',
+    default: ""
   },
   disabled: {
     type: Boolean,
-    default: false,
+    default: false
   },
   type: {
     type: String,
-    default: 'textarea',
+    default: "textarea"
   },
   placeholder: {
     type: String,
-    default: '请问我有什么能帮助你的？',
+    default: "请问我有什么能帮助你的？"
   },
   rows: {
     type: Number,
-    default: 3,
+    default: 3
   },
   autosize: {
     type: Object,
@@ -52,7 +65,7 @@ const props = defineProps({
   }
 });
 
-const emits = defineEmits(['update:inputs', 'sendMessage']);
+const emits = defineEmits(["update:inputs", "sendMessage"]);
 
 const { inputs, type, placeholder, autosize, rows } = toRefs(props);
 const inputRef = ref(null);
@@ -63,9 +76,11 @@ watch(inputs, val => {
 });
 
 watch(inputValue, val => {
-  emits('update:inputs', val);
+  emits("update:inputs", val);
 });
-
+const sendMessage = () => {
+  emits("sendMessage", inputValue.value);
+};
 const keyCodeAction = event => {
   // shift + enter 换行
   if (event.shiftKey) {
@@ -75,7 +90,7 @@ const keyCodeAction = event => {
   event.preventDefault();
 
   // 信息
-  emits('sendMessage', inputValue.value);
+  emits("sendMessage", inputValue.value);
 };
 
 defineExpose({
@@ -86,6 +101,18 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+.content {
+  margin: 40px auto;
+  width: 800px;
+  min-height: 160px;
+  background: #ffffff;
+  box-shadow: 0px 0px 10px 0px rgba(176, 198, 212, 0.3);
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .input-area-wrap {
   display: flex;
   flex-direction: column;
