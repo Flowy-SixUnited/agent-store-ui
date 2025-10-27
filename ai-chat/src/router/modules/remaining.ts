@@ -2,11 +2,11 @@ const Layout = () => import("@/layout/index.vue");
 
 export default [
   {
-    path: "/login",
-    name: "Login",
-    component: () => import("@/views/login/index.vue"),
+    path: "/ai-chat",
+    name: "AI Chat",
+    component: () => import("@/views/home/index.vue"),
     meta: {
-      title: "登录",
+      title: "智能客服",
       showLink: false,
       rank: 101
     }

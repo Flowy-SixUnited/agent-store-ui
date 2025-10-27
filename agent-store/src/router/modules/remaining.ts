@@ -2,11 +2,11 @@ const Layout = () => import("@/layout/index.vue");
 
 export default [
   {
-    path: "/login",
-    name: "Login",
-    component: () => import("@/views/login/index.vue"),
+    path: "/agent-store",
+    name: "Agent Store",
+    component: () => import("@/views/home/index.vue"),
     meta: {
-      title: "登录",
+      title: "Agent Store",
       showLink: false,
       rank: 101
     }

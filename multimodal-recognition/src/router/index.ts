@@ -106,7 +106,7 @@ export function resetRouter() {
 }
 
 /** 路由白名单 */
-const whiteList = ["/login"];
+const whiteList = ["/multimodal-recognition"];
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
@@ -154,7 +154,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       // 刷新
       if (
         usePermissionStoreHook().wholeMenus.length === 0 &&
-        to.path !== "/login"
+        to.path !== "/multimodal-recognition"
       ) {
         initRouter().then((router: Router) => {
           if (!useMultiTagsStoreHook().getMultiTagsCache) {
@@ -191,12 +191,12 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       toCorrectRoute();
     }
   } else {
-    if (to.path !== "/login") {
+    if (to.path !== "/multimodal-recognition") {
       if (whiteList.indexOf(to.path) !== -1) {
         next();
       } else {
         removeToken();
-        next({ path: "/login" });
+        next({ path: "/multimodal-recognition" });
       }
     } else {
       next();
