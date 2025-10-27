@@ -17,31 +17,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <deep-chat
-    ref="chatRef"
-    :textInput="{
-      placeholder: { text: '请问我有什么能帮助你的？' }
-    }"
-    demo="true"
-    style="border-radius: 8px; height: 160px; "
-  >
-    <!-- <div class="content">
-      <el-input
-        v-model="textarea"
-        :rows="4"
-        type="textarea"
-        placeholder="请问我有什么能帮助你的？"
-      />
-      <div class="flex items-center justify-between">
-        <div
-          class="flex items-center justify-center bg-[#F0F0F0] h-8 w-8 rounded-[50px]"
-        >
-          <el-icon><Plus /></el-icon>
-        </div>
-        <img class="h-8 w-8" src="@/assets/home/disable-send.png" />
+  <div class="content">
+    <!-- <el-input
+      v-model="textarea"
+      :rows="4"
+      type="textarea"
+      placeholder="请问我有什么能帮助你的？"
+    />
+    <div class="flex items-center justify-between">
+      <div
+        class="flex items-center justify-center bg-[#F0F0F0] h-8 w-8 rounded-[50px]"
+      >
+        <el-icon><Plus /></el-icon>
       </div>
+      <img class="h-8 w-8" src="@/assets/home/disable-send.png" />
     </div> -->
-  </deep-chat>
+  </div>
 </template>
 
 <style scoped lang="scss">

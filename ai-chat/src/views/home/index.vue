@@ -1,9 +1,6 @@
 <template>
   <div class="main bg-[#fcfcfc]">
     <div class="title">你好，开始美好的一天！</div>
-    <!-- <div class="mt-10">
-      <Inputs ref="inputsRef" v-model:inputs="inputValue" :autosize="autosize" @send-message="sendMessage" />
-    </div> -->
     <div class="content">
       <!-- <el-input
         v-model="textarea"
