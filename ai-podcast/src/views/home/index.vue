@@ -27,7 +27,7 @@
         <Audio title="2" @playAudio2="handlePlayAudio2" @text2="handleText2"/>
       </div>
       <div class="tool-item">
-        <Script @update:fileList="handleFileChange" @updata:text="handleScriptText"/>
+        <Script @update:fileList="handleFileChange" @update:text="handleScriptText"/>
       </div>
     </div>
     <div v-else class="tools">
@@ -38,7 +38,7 @@
         <Figure type="boy" title="2" />
       </div>
       <div class="tool-item">
-        <Script @update:fileList="handleFileChange" @updata:text="handleScriptText" />
+        <Script @update:fileList="handleFileChange" @update:text="handleScriptText" />
       </div>
     </div>
     <div
@@ -143,7 +143,6 @@ const handleText2 = (text: string) => {
   rawData.value.text2 = `[S2]${text}`;
 };
 const handleScriptText = (textList: string[]) => {
-  console.log(textList);
   rawData.value.text_list = textList;
 };
 const handleStatusUpdate = (newStatus: string) => {

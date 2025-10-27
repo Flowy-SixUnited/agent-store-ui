@@ -51,7 +51,7 @@ import pausePlay from "@/assets/home/pause-play.png";
 import startPlay from "@/assets/home/start-play.png";
 import { Close } from "@element-plus/icons-vue";
 import { usePodcastStoreHook } from "@/store/modules/podcast";
-// 1. 定义核心类型，明确数据结构
+
 // 音频文件信息类型
 interface AudioFile {
   name: string;
@@ -59,7 +59,6 @@ interface AudioFile {
   duration?: number;
 }
 
-// 2. 定义响应式变量并指定类型
 const isRecording = ref<boolean>(false);
 // 明确 mediaRecorder 为 MediaRecorder 类型（null 表示初始未创建）
 const mediaRecorder = ref<MediaRecorder | null>(null);
@@ -72,7 +71,7 @@ const currentAudioIndex = ref<number>(0); // 当前选中的音频索引
 const isPlaying = ref<boolean>(false); // 当前是否在播放
 const currentPlayTime = ref<number>(0); // 当前播放进度（秒）
 
-// 3. 开始录音（补全参数类型和返回值类型）
+// 开始录音
 const startRecording = async (): Promise<void> => {
   if (isRecording.value) return;
   try {
@@ -84,7 +83,7 @@ const startRecording = async (): Promise<void> => {
     // 创建 MediaRecorder 实例并指定类型
     mediaRecorder.value = new MediaRecorder(stream);
 
-    // 4. 事件回调补全参数类型
+    // 事件回调补全参数类型
     mediaRecorder.value.ondataavailable = (e: BlobEvent) => {
       audioChunks.value.push(e.data);
     };
@@ -146,7 +145,7 @@ const formattedPlayTime = computed(() => {
   // 补零确保两位数
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 });
-// 5. 停止录音（补全类型判断）
+// 停止录音（补全类型判断）
 const stopRecording = (): void => {
   console.log("停止录音");
   isRecording.value = false;
@@ -164,7 +163,7 @@ const stopRecording = (): void => {
   }
 };
 
-// 6. 获取文件扩展名（补全参数类型和返回值类型）
+// 获取文件扩展名（补全参数类型和返回值类型）
 const getFileExtension = (mimeType: string): string => {
   // 明确映射对象的键值类型
   const extensions: Record<string, string> = {
@@ -178,7 +177,7 @@ const getFileExtension = (mimeType: string): string => {
   return extensions[mimeType] || "webm";
 };
 
-// 7. 切换录音状态（补全逻辑和类型）
+// 切换录音状态（补全逻辑和类型）
 const toggleRecording = (): void => {
   if (!isRecording.value) {
     startRecording();
@@ -197,7 +196,7 @@ const setCurrentAudio = (index: number): void => {
   currentPlayTime.value = 0;
 };
 
-// 7.2 播放/暂停切换
+// 播放/暂停切换
 const toggleAudioPlay = (): void => {
   const currentAudio = audioElements.value[currentAudioIndex.value];
   console.log("currentAudio", currentAudio);
@@ -212,7 +211,7 @@ const toggleAudioPlay = (): void => {
   }
   isPlaying.value = !isPlaying.value;
 };
-// 8. 清理资源（组件卸载时停止录音）
+// 清理资源（组件卸载时停止录音）
 onUnmounted(() => {
   stopRecording();
   // 释放所有音频 URL 资源（避免内存泄漏）

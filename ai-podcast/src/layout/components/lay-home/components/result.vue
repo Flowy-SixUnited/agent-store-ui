@@ -38,11 +38,7 @@
 import { ref, watch, onUnmounted } from "vue";
 import Player from "./player.vue";
 import { usePodcastStoreHook } from "@/store/modules/podcast";
-const result = ref({
-  fileName:
-    "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip",
-  fileSize: "2.4MB"
-});
+
 const props = defineProps({
   audioInfo: {
     type: Object,
@@ -94,18 +90,6 @@ const handleDownload = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     });
-  // console.log(audioUrl.value);
-  // 创建下载链接
-  // const url = URL.createObjectURL(audioUrl.value);
-  // const a = document.createElement("a");
-  // a.href = audioUrl.value;
-  // a.download = props.audioInfo.name; // 下载文件名
-  // document.body.appendChild(a);
-  // a.click(); // 触发下载
-
-  // // 清理资源，避免内存泄漏
-  // document.body.removeChild(a);
-  // URL.revokeObjectURL(audioUrl.value);
 };
 //  监听 status 变化：status 为 loading 时启动倒计时
 watch(

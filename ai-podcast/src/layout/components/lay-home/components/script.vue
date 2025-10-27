@@ -79,8 +79,8 @@ const handleFileChange = (
   reader.readAsText(file.raw); // file.raw 是原生 File 对象
   reader.onload = e => {
     scriptText.value = e.target.result; // 文件内容
+    handleTextChange();
   };
-  handleTextChange();
   emit("update:fileList", fileList.value);
 };
 const formatFileSize = (size: number): string => {
