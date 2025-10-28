@@ -16,37 +16,6 @@ export const useMultimodalStore = defineStore("multimodal", {
           });
       });
     }
-    // async download(name, download) {
-    //   return new Promise<AgentResult>((resolve, reject) => {
-    //     getDownload(name, download)
-    //       .then(data => {
-    //         // console.log(data);
-    //         // if (data?.status === "ok") {
-    //         //   data.success = true;
-    //         //   data.file = data.file;
-    //         // }
-    //         // data.file = data;
-    //         // data.success = true;
-    //         resolve(data);
-    //       })
-    //       .catch(error => {
-    //         reject(error);
-    //       });
-    //   });
-    // },
-    // async openAgent(data) {
-    //   return new Promise<AgentResult>((resolve, reject) => {
-    //     toggleAgent(data)
-    //       .then(data => {
-    //         console.log(data);
-    //         data.success = true;
-    //         resolve(data);
-    //       })
-    //       .catch(error => {
-    //         reject(error);
-    //       });
-    //   });
-    // }
   }
 });
 

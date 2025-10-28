@@ -27,8 +27,7 @@ const scriptText = ref("");
 const emit = defineEmits(["update:text"]);
 watch(
   () => scriptText.value,
-  (newVal) => {
-    console.log(scriptText.value);
+  newVal => {
     emit("update:text", newVal);
   }
 );

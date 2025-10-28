@@ -14,14 +14,30 @@
     >
       <img class="w-8 h-8" src="@/assets/home/upload.png" alt="icon" />
       <div class="el-upload__text">
-        <span class="text">支持jpg/png/jpeg格式<span class="tip">（100MB以内）</span></span>
+        <span class="text"
+          >支持jpg/png/jpeg格式<span class="tip">（100MB以内）</span></span
+        >
         <div class="button">选择文件</div>
       </div>
     </el-upload>
     <div v-if="fileList.length > 0" class="file">
-      <el-icon :size="12" class="close cursor-pointer ml-2" @click="fileList = []"><Close /></el-icon>
+      <el-icon
+        :size="12"
+        class="close cursor-pointer ml-2"
+        @click="fileList = []"
+        ><Close
+      /></el-icon>
       <div class="flex flex-col gap-3 items-center">
-        <img class="w-8 h-8" :src="fileList[0].raw.type.includes('video') ? MOV : fileList[0].raw.type.includes('image') ? PNG : MP4" />
+        <img
+          class="w-8 h-8"
+          :src="
+            fileList[0].raw.type.includes('video')
+              ? MOV
+              : fileList[0].raw.type.includes('image')
+                ? PNG
+                : MP4
+          "
+        />
         <div class="flex items-center gap-2">
           <span class="file-name cursor-pointer">{{ fileList[0].name }}</span>
           <span class="file-size">{{ formatFileSize(fileList[0].size) }}</span>
@@ -49,7 +65,6 @@ const handleFileChange = (
   compFileList: UploadRawFile[]
 ) => {
   fileList.value = compFileList;
-  console.log(fileList.value);
   emit("update:fileList", fileList.value);
 };
 const formatFileSize = (size: number): string => {

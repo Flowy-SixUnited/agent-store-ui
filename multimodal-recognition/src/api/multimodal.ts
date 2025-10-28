@@ -25,7 +25,8 @@ export type MultimodalResult = {
 /** 获取agent列表 */
 export const getGenerate = (data?: object) => {
   return http.request<MultimodalResult>("post", "/api/v1/chat/completions", {
-    data
+    data,
+    headers: { "Content-Type": "application/json" }
   });
 };
 export const getDownload = (name?: string, download?: boolean) => {

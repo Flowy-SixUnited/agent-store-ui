@@ -4,7 +4,8 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >多模态识别 Agent 可处理多类数据，具整合、关联、响应能力，应用于安防、医疗、自动驾驶等场景。</span
+          >多模态识别 Agent
+          可处理多类数据，具整合、关联、响应能力，应用于安防、医疗、自动驾驶等场景。</span
         >
       </div>
       <div class="tools">
@@ -22,17 +23,17 @@
       >
         开始生成
       </div>
-      <div v-if="result.fileName && result.scriptText">
-        <Result />
+      <div
+        v-if="result.fileName && result.scriptText"
+        class="pb-3 bg-[#fcfcfc]"
+      >
+        <Result :status="status" :content="content" />
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import bgUrl from "@/assets/home/header-bg.png";
-import Audio from "@/layout/components/lay-home/components/timbre.vue";
-import Script from "@/layout/components/lay-home/components/script.vue";
-import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
 import PromptWord from "@/layout/components/lay-home/components/prompt-word.vue";
 import Upload from "@/layout/components/lay-home/components/upload.vue";
@@ -42,18 +43,18 @@ import { ref } from "vue";
 defineOptions({
   name: "home"
 });
-const type = ref("default");
 const fileList = ref<UploadRawFile[]>([]);
 const result = ref({
   fileName: "",
   fileSize: "",
   scriptText: ""
 });
+const content = ref("");
+const status = ref("ready");
 const promptText = ref("");
 const imageBase64 = ref("");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
-  console.log(fileList.value.length);
   const file = newFileList[0].raw;
   if (!file) {
     // 若未选择文件，清空相关值
@@ -79,89 +80,63 @@ const handleFileChange = (newFileList: UploadRawFile[]) => {
   // 开始异步读取文件
   reader.readAsDataURL(file);
 };
-// const handleFileChange = (newFileList: UploadRawFile[]) => {
-//   fileList.value = newFileList;
-//   console.log(fileList.value.length);
-//   const file = newFileList[0];
-//   if (!file) return;
-//   const reader = new FileReader();
-//   reader.onload = () => {
-//     // 去掉 data:image/xxx;base64, 前缀，只留纯数据
-//     imageBase64.value = reader.result.split(",")[1];
-//   };
-//   reader.readAsDataURL(file);
-//   promptText.value = imageBase64.value;
-// };
-// async function ask = () => {
-//   // loading.value = true
-//   // answer.value = ''
-//   try {
-//     const res = await fetch('https://api.openai.com/v1/chat/completions', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         /* !!! 不要直接暴露 Key，此处仅演示 !!! */
-//         Authorization: `Bearer ${import.meta.env.VITE_OPENAI_KEY}`
-//       },
-//       body: JSON.stringify({
-//         model: 'gpt-4o',
-//         messages: [
-//           {
-//             role: 'user',
-//             content: [
-//               { type: 'text', text: question.value },
-//               {
-//                 type: 'image_url',
-//                 image_url: { url: `data:image/jpeg;base64,${imageBase64.value}` }
-//               }
-//             ]
-//           }
-//         ],
-//         max_tokens: 400
-//       })
-//     })
-
-//     const data = await res.json()
-//     if (!res.ok) throw new Error(data.error?.message || '请求失败')
-//     answer.value = data.choices[0].message.content
-//   } catch (e) {
-//     answer.value = '出错：' + e.message
-//   } finally {
-//     loading.value = false
-//   }
-// }
-
 const handleTextChange = (newText: string) => {
   promptText.value = newText;
-  console.log(promptText.value);
 };
 const handleGenerate = () => {
-  // if (fileList.value.length === 0) {
-  //   return;
-  // }
-  // result.value.fileName =
-  //   "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
-  // result.value.fileSize = "2.4MB";
-  // result.value.scriptText = promptText.value;
+  result.value.fileName =
+    "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
+  result.value.fileSize = "2.4MB";
+  result.value.scriptText = promptText.value;
   const data = {
-    model: "gpt-4o",
     messages: [
       {
         role: "user",
         content: [
-          { type: "text", text: promptText.value },
+          {
+            type: "text",
+            text: promptText.value
+          },
           {
             type: "image_url",
-            image_url: { url: `data:image/jpeg;base64,${imageBase64.value}` }
+            image_url: {
+              url: `data:image/png;base64,${imageBase64.value}`
+            }
           }
         ]
       }
     ],
-    max_tokens: 400
+    stream: false,
+    reasoning_format: "auto",
+    temperature: 0.8,
+    max_tokens: -1,
+    dynatemp_range: 0,
+    dynatemp_exponent: 1,
+    top_k: 40,
+    top_p: 0.95,
+    min_p: 0.05,
+    xtc_probability: 0,
+    xtc_threshold: 0.1,
+    typ_p: 1,
+    repeat_last_n: 64,
+    repeat_penalty: 1,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    dry_multiplier: 0,
+    dry_base: 1.75,
+    dry_allowed_length: 2,
+    dry_penalty_last_n: -1,
+    samplers: ["top_k", "typ_p", "top_p", "min_p", "temperature"],
+    timings_per_token: true
   };
+  status.value = "loading";
   useMultimodalStoreHook()
     .generate(data)
-    .then(res => {});
+    .then(res => {
+      console.log(res);
+      content.value = res.choices[0].message.content;
+      status.value = "success";
+    });
 };
 </script>
 <style scoped lang="scss">
