@@ -27,18 +27,24 @@
         <Audio title="2" @playAudio2="handlePlayAudio2" @text2="handleText2"/>
       </div>
       <div class="tool-item">
-        <Script @update:fileList="handleFileChange" @update:text="handleScriptText"/>
+        <Script
+          @update:fileList="handleFileChange"
+          @update:text="handleScriptText"
+        />
       </div>
     </div>
     <div v-else class="tools">
       <div class="tool-item">
-        <Figure type="girl" title="1" />
+        <Figure type="girl" title="1" @curVocice1="handleVocice1" />
       </div>
       <div class="tool-item">
-        <Figure type="boy" title="2" />
+        <Figure type="boy" title="2" @curVocice2="handleVocice2" />
       </div>
       <div class="tool-item">
-        <Script @update:fileList="handleFileChange" @update:text="handleScriptText" />
+        <Script
+          @update:fileList="handleFileChange"
+          @update:text="handleScriptText"
+        />
       </div>
     </div>
     <div
@@ -65,7 +71,7 @@ import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
 import { usePodcastStoreHook } from "@/store/modules/podcast";
 import type { UploadRawFile } from "element-plus";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { title } from "process";
 import { List } from "echarts";
 defineOptions({
@@ -87,17 +93,23 @@ const audioInfo = ref({
   size: 0
 });
 const rawData = ref({
-  audio1: "xzy 音频2.MP3",
-  audio2: "genji老师声音10.17.MP3",
+  audio1: "audio/female/自然声.mp3",
+  audio2: "audio/male/自然声.mp3",
   text1:
-    "[S1]嗯你也想吃那个菜了吗?啊让我想一想啊，这个菜虽然简单，但是呢?也有一些小窍门，嗯首先呢?你得先准备一些食材，呃准备两个西红柿，两个鸡蛋，然后还有一些葱和蒜，呃然后呢?呃其中一个小窍门就是，你得先拿刀把西红柿划个十字花刀，然后用开水烫一下，呃这样呢?它的皮呢?就会很轻易的剥掉，这样西红柿炒出来呢?也会更容易出汁，呃另一个小窍门就是你得先把锅烧热，然后呢?把鸡蛋放下去，把锅烧热的原因呢?是这样的话会更容易让鸡蛋成型。",
+    "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
   text2:
-    "[S2]啊对对对，而且其实过段时间呢，我们还会去跑一个叫做去重合并的这个步骤啊。去重就是把过去相似的这个条目去合并，啊，防止咱们这笔记本变得更臃肿。是啊是啊，只增加少量的文字呢，其实也会让我们这个算力的消耗啊去大范围的下降。其实在文里面说呢，我们用ACE去跑一个比如像办公助理的任务，它会比传统方法其实要节省至少百分之三十的时间。它比传统办法至少要节省百分之八十的时间，你其实算力费下来啊，也就是几块钱的事。",
+    "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
   text_list: [
-    "[S1]那可能说对对，没有去过美国来说去去看到美国线下。巴斯曼也好，沃尔玛也好，他们线下不管说，因为深圳出去的还是电子周边的会表达，会发现哇对这个价格真的是很高呀。都是卖三十五美金、四十美金，甚至一个手机壳，就是二十五美金开。",
-    "[S2]对，没错，我每次都觉得不不可思议。我什么人会买三五十美金的手机壳？但是其实在在那个target啊，就塔吉特这种超级市场，大家都是这样的，定价也很多人买。"
+    "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
+    "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～"
   ]
 });
+const handleVocice1 = audio => {
+  rawData.value.audio1 = audio;
+};
+const handleVocice2 = audio => {
+  rawData.value.audio2 = audio;
+};
 const handleGenerate = () => {
   if (fileList.value.length === 0) {
     return;
@@ -148,6 +160,19 @@ const handleScriptText = (textList: string[]) => {
 const handleStatusUpdate = (newStatus: string) => {
   status.value = newStatus;
 };
+watch(
+  () => type.value, // 监听的目标：type 的值
+  (newType, oldType) => {
+    if (newType !== oldType) {
+      fileList.value = []; // 清空文件列表
+      result.value.fileName = "";
+    }
+  },
+  {
+    immediate: false,
+    deep: false
+  }
+);
 </script>
 <style scoped lang="scss">
 .home {

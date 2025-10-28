@@ -14,10 +14,12 @@
           class="w-4 h-4 mr-2"
           src="@/assets/home/ing.png"
           alt="loading"
-        />加载中，当前用时：{{ formatTime(currentTime) }} | 当前进度：{{ progress }}%
+        />加载中，当前用时：{{ formatTime(currentTime) }} | 当前进度：{{
+          progress
+        }}%
       </div>
     </div>
-    <div class="return-file" v-if="status === 'success'">
+    <div v-if="status === 'success'" class="return-file">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <span class="file-name">{{ audioInfo.url }}</span>

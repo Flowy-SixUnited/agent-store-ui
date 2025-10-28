@@ -112,7 +112,7 @@ import boyImg from "@/assets/home/boy.png";
 import girlVoiceActive from "@/assets/home/girl-voice-active.png";
 import voiceDefault from "@/assets/home/voice-default.png";
 import boyVoiceActive from "@/assets/home/boy-voice-active.png";
-
+const emit = defineEmits(["curVocice1", "curVocice2"]);
 const props = defineProps({
   type: {
     type: String,
@@ -125,69 +125,91 @@ const props = defineProps({
 });
 const girlVoices = ref([
   {
-    name: "小女孩",
+    name: "播音声",
     active: false,
     defaultIcon: voiceDefault,
-    activeIcon: girlVoiceActive
+    activeIcon: girlVoiceActive,
+    audio: "audio/female/播音声.mp3"
   },
   {
-    name: "御姐",
+    name: "萌趣声",
     active: false,
     defaultIcon: voiceDefault,
-    activeIcon: girlVoiceActive
+    activeIcon: girlVoiceActive,
+    audio: "audio/female/萌趣声.mp3"
   },
   {
-    name: "二次元萌妹",
+    name: "元气声",
+    active: false,
+    defaultIcon: voiceDefault,
+    activeIcon: girlVoiceActive,
+    audio: "audio/female/元气声.mp3"
+  },
+  {
+    name: "自然声", // 默认选中
     active: true,
     defaultIcon: voiceDefault,
-    activeIcon: girlVoiceActive
-  }, // 默认选中
-  {
-    name: "奶奶",
-    active: false,
-    defaultIcon: voiceDefault,
-    activeIcon: girlVoiceActive
+    activeIcon: girlVoiceActive,
+    audio: "audio/female/自然声.mp3"
   }
 ]);
 const boyVoices = ref([
   {
-    name: "小男孩",
+    name: "播音声",
     active: false,
     defaultIcon: voiceDefault,
-    activeIcon: boyVoiceActive
+    activeIcon: boyVoiceActive,
+    audio: "audio/male/播音声.mp3"
   },
   {
-    name: "活力少年",
+    name: "萌趣声",
     active: false,
     defaultIcon: voiceDefault,
-    activeIcon: boyVoiceActive
+    activeIcon: boyVoiceActive,
+    audio: "audio/male/萌趣声.mp3"
   },
   {
-    name: "大叔",
+    name: "元气声",
+    active: false,
+    defaultIcon: voiceDefault,
+    activeIcon: boyVoiceActive,
+    audio: "audio/male/元气声.mp3"
+  },
+  {
+    name: "自然声", // 默认选中
     active: true,
     defaultIcon: voiceDefault,
-    activeIcon: boyVoiceActive
-  }, // 默认选中
-  {
-    name: "爷爷",
-    active: false,
-    defaultIcon: voiceDefault,
-    activeIcon: boyVoiceActive
+    activeIcon: boyVoiceActive,
+    audio: "audio/male/自然声.mp3"
   }
 ]);
 const curType = ref(props.type);
 const curVoices = computed(() => {
   return curType.value === "girl" ? girlVoices.value : boyVoices.value;
 });
-
+let currentAudio: HTMLAudioElement | null = null;
 const handleVoiceClick = (voices: any[], position: number, index: number) => {
   const realIndex = position === 1 ? index + 2 : index;
-
+  const selectedVoice = voices[realIndex];
   voices.forEach((item, idx) => {
     item.active = false;
   });
 
   voices[realIndex].active = true;
+  if (currentAudio) {
+    currentAudio.pause(); // 暂停
+    currentAudio.currentTime = 0; // 重置播放进度到开头
+  }
+  const audioUrl = `/${selectedVoice.audio}`;
+  currentAudio = new Audio(audioUrl);
+  currentAudio.play().catch(err => {
+    console.error(`音频播放失败：${selectedVoice.name}`, err);
+  });
+  if (props.title == "1") {
+    emit("curVocice1", voices[realIndex].audio);
+  } else {
+    emit("curVocice2", voices[realIndex].audio);
+  }
 };
 </script>
 <style scoped lang="scss">
