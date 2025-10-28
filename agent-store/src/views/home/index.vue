@@ -14,7 +14,7 @@
       >
         <div class="flex gap-2 items-center">
           <img class="h-6 w-6" :src="item.icon" />
-          <span class="title">{{ item.title }}</span>
+          <span class="title">{{ item.name }}</span>
         </div>
         <el-tooltip
           class="box-item"
@@ -25,7 +25,62 @@
           <span class="desc">{{ item.desc }}</span>
         </el-tooltip>
         <div class="flex items-center justify-between">
-          <div v-if="item.status == 'unload'">
+          <div
+            v-if="curStatus.status != 'unload' && curStatus.id == item.id"
+            class="flex justify-between items-center w-full"
+          >
+            <div
+              :class="
+                curStatus.status == 'loading' ? 'loading-btn' : 'loaded-btn'
+              "
+            >
+              {{ curStatus.status == "loading" ? "加载中" : "加载完成" }}
+            </div>
+            <div v-if="curStatus.status == 'loaded'" class="go-to-btn">
+              前往使用
+            </div>
+          </div>
+          <div v-else>
+            <div v-if="!curAgent">
+              <div class="run-btn" @click.stop="startAgent(item)">开始运行</div>
+            </div>
+            <div v-else>
+              <el-tooltip class="box-item" effect="dark" placement="bottom">
+                <div
+                  class="run-btn"
+                  style="
+                    color: #202a2f;
+                    background: #e6e6e6;
+                    border: 1px solid #e6e6e6;
+                  "
+                >
+                  开始运行
+                </div>
+                <template #content>
+                  <div class="flex items-center gap-1 run-tips">
+                    <span
+                      >⚠️当前{{ curAgent }}Agent正在运行，是否停止{{
+                        curAgent
+                      }}Agent运行并开启该Agent？</span
+                    >
+                    <el-button type="info" size="small">否</el-button>
+                    <el-button size="small" @click.stop="startAgent(item)"
+                      >是</el-button
+                    >
+                  </div>
+                </template>
+              </el-tooltip>
+            </div>
+          </div>
+          <!-- <div
+            v-else
+            :class="item.status == 'loading' ? 'loading-btn' : 'loaded-btn'"
+          >
+            {{ item.status == "loading" ? "加载中" : "加载完成" }}
+          </div>
+          <div v-if="item.status == 'loaded'" class="go-to-btn">前往使用</div> -->
+        </div>
+        <!-- <div v-if="item.status == 'unload'">
             <div v-if="curAgent == item.title" class="run-btn">开始运行</div>
             <el-tooltip
               v-else
@@ -63,8 +118,7 @@
           >
             {{ item.status == "loading" ? "加载中" : "加载完成" }}
           </div>
-          <div v-if="item.status == 'loaded'" class="go-to-btn">前往使用</div>
-        </div>
+          <div v-if="item.status == 'loaded'" class="go-to-btn">前往使用</div> -->
       </div>
     </div>
   </div>
@@ -78,70 +132,84 @@ import documentParseIcon from "@/assets/home/document-parse.png";
 import aiChatIcon from "@/assets/home/ai-chat.png";
 import coStormIcon from "@/assets/home/co-storm.png";
 import meetingIcon from "@/assets/home/meeting.png";
+import { useAgentStoreHook } from "@/store/modules/agent";
+import { id, tr } from "element-plus/es/locales.mjs";
+import { status } from "nprogress";
 defineOptions({
-  name: "home",
+  name: "home"
 });
 
-const agentList = ref([
-  {
-    icon: aiPodcastIcon,
-    title: "AI博客",
-    desc: "一站式智能辅助工具，智能内容生成、内容质量优化、运营自动化、个性化定制赋能博客全流程",
-    link: "",
-    running: true,
-    status: "unload",
-  },
-  {
-    icon: textToPicIcon,
-    title: "文生图",
-    desc: "可将文字描述精准转化为图像，赋能创作、设计、营销等多元场景",
-    link: "",
-    running: false,
-    status: "loaded",
-  },
-  {
-    icon: textToVideoIcon,
-    title: "文生视频",
-    desc: "可将文字描述生成动态视频，支持风格定制，赋能多场景且提升视频制作效率",
-    link: "",
-    running: false,
-    status: "loading",
-  },
-  {
-    icon: documentParseIcon,
-    title: "文档解析",
-    desc: "可解析 PDF/Word 等多格式文档，提取文本、表格、图片信息并结构化，赋能办公、科研等场景",
-    link: "",
-    running: false,
-    status: "unload",
-  },
-  {
-    icon: aiChatIcon,
-    title: "智能客服",
-    desc: "可多渠道实时响应咨询、自动处理常见问题，赋能企业服务、售后等场景",
-    link: "",
-    running: false,
-    status: "unload",
-  },
-  {
-    icon: coStormIcon,
-    title: "Co-STORM",
-    desc: "支持多主体协同研讨，拆解问题、生成方案并管控流程，赋能企业决策、项目攻坚等场景",
-    link: "",
-    running: false,
-    status: "unload",
-  },
-  {
-    icon: meetingIcon,
-    title: "会议纪要&同声传译",
-    desc: "可实时多语言同声传译、自动整理会议议题 / 决议 / 待办，赋能高效会议管理",
-    link: "",
-    running: false,
-    status: "unload",
-  },
-]);
+// const agentList = ref([
+//   {
+//     icon: aiPodcastIcon,
+//     title: "AI博客",
+//     desc: "一站式智能辅助工具，智能内容生成、内容质量优化、运营自动化、个性化定制赋能博客全流程",
+//     link: "",
+//     running: true,
+//     status: "unload",
+//   },
+//   {
+//     icon: textToPicIcon,
+//     title: "文生图",
+//     desc: "可将文字描述精准转化为图像，赋能创作、设计、营销等多元场景",
+//     link: "",
+//     running: false,
+//     status: "loaded",
+//   },
+//   {
+//     icon: textToVideoIcon,
+//     title: "文生视频",
+//     desc: "可将文字描述生成动态视频，支持风格定制，赋能多场景且提升视频制作效率",
+//     link: "",
+//     running: false,
+//     status: "loading",
+//   },
+//   {
+//     icon: documentParseIcon,
+//     title: "文档解析",
+//     desc: "可解析 PDF/Word 等多格式文档，提取文本、表格、图片信息并结构化，赋能办公、科研等场景",
+//     link: "",
+//     running: false,
+//     status: "unload",
+//   },
+//   {
+//     icon: aiChatIcon,
+//     title: "智能客服",
+//     desc: "可多渠道实时响应咨询、自动处理常见问题，赋能企业服务、售后等场景",
+//     link: "",
+//     running: false,
+//     status: "unload",
+//   },
+//   {
+//     icon: coStormIcon,
+//     title: "Co-STORM",
+//     desc: "支持多主体协同研讨，拆解问题、生成方案并管控流程，赋能企业决策、项目攻坚等场景",
+//     link: "",
+//     running: false,
+//     status: "unload",
+//   },
+//   {
+//     icon: meetingIcon,
+//     title: "会议纪要&同声传译",
+//     desc: "可实时多语言同声传译、自动整理会议议题 / 决议 / 待办，赋能高效会议管理",
+//     link: "",
+//     running: false,
+//     status: "unload",
+//   },
+// ]);
+const curStatus = ref({ id: -1, status: "unload" });
+const agentList = ref([]);
+const initialize = () => {
+  useAgentStoreHook()
+    .agentList()
+    .then(res => {
+      console.log(res);
+      agentList.value = res.agents;
+    });
+};
+initialize();
 const curAgent = computed(() => {
-  const runningAgent = agentList.value.find((item) => item.running);
+  const runningAgent = agentList.value.find(item => item.status == "running");
   return runningAgent ? runningAgent.title : "";
 });
 const handleItemClick = (clickedIndex: number) => {
@@ -149,6 +217,20 @@ const handleItemClick = (clickedIndex: number) => {
     ...item,
     running: index === clickedIndex,
   }));
+};
+const startAgent = (item: object) => {
+  curStatus.value = {
+    id: item.id,
+    status: "loading"
+  };
+  console.log(item);
+  useAgentStoreHook()
+    .openAgent(item.id)
+    .then(res => {
+      curStatus.value.status = "loaded";
+      curAgent.value = item.name;
+      initialize();
+    });
 };
 </script>
 <style scoped lang="scss">
