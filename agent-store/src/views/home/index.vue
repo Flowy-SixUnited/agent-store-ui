@@ -13,7 +13,7 @@
         @click="handleItemClick(index)"
       >
         <div class="flex gap-2 items-center">
-          <img class="h-6 w-6" :src="item.icon" />
+          <img class="h-6 w-6" :src="aiPodcastIcon" />
           <span class="title">{{ item.name }}</span>
         </div>
         <el-tooltip
@@ -36,8 +36,15 @@
               :class="
                 curStatus.status === 'loading' ? 'loading-btn' : 'loaded-btn'
               "
+              @click.stop="startAgent(item, true)"
             >
-              {{ curStatus.status === "loading" ? "加载中" : "加载完成" }}
+              {{
+                isClose
+                  ? "正在关闭"
+                  : curStatus.status === "loading"
+                    ? "加载中"
+                    : "关闭服务"
+              }}
             </div>
             <div v-if="curStatus.status === 'loaded'" class="go-to-btn">
               前往使用
@@ -45,7 +52,7 @@
           </div>
           <div v-else>
             <!-- 有正在运行的Agent时，其他Agent显示提示 -->
-            <div v-if="curAgent">
+            <div v-if="curAgent || curStatus.status === 'loading'">
               <el-tooltip class="box-item" effect="dark" placement="bottom">
                 <div
                   class="run-btn"
@@ -60,14 +67,14 @@
                 <template #content>
                   <div class="flex items-center gap-1 run-tips">
                     <span
-                      >⚠️当前{{ curAgent }}Agent正在运行，是否停止{{
+                      >⚠️当前{{ curAgent }}Agent正在运行，请先关闭{{
                         curAgent
-                      }}Agent运行并开启该Agent？</span
+                      }}Agen的服务</span
                     >
-                    <el-button type="info" size="small">否</el-button>
+                    <!-- <el-button type="info" size="small">否</el-button>
                     <el-button size="small" @click.stop="startAgent(item)"
                       >是</el-button
-                    >
+                    > -->
                   </div>
                 </template>
               </el-tooltip>
@@ -210,6 +217,7 @@ defineOptions({
 //   },
 // ]);
 const curStatus = ref({ id: -1, status: "unload" });
+const isClose = ref(false);
 const agentList = ref([]);
 const initialize = () => {
   useAgentStoreHook()
@@ -240,17 +248,20 @@ const handleItemClick = (clickedIndex: number) => {
     running: index === clickedIndex,
   }));
 };
-const startAgent = (item: object) => {
-  if (curStatus.value.id === item.id && curStatus.value.status === "loaded")
-    return;
-  curStatus.value = {
-    id: item.id,
-    status: "loading"
-  };
+const startAgent = (item: object, close: boolean = false) => {
+  if (curStatus.value.status === "loading") return;
+  if (curStatus.value.id !== item.id){
+    curStatus.value = {
+      id: item.id,
+      status: "loading"
+    };
+  }
+  if (close) isClose.value = true;
   useAgentStoreHook()
     .openAgent(item.id)
     .then(res => {
       curStatus.value.status = "loaded";
+      isClose.value = false;
       initialize();
     })
     .catch(err => {
@@ -345,13 +356,14 @@ const startAgent = (item: object) => {
     }
     .loaded-btn {
       width: 64px;
-      background: #d3ffd7;
+      background: #ffd3d3;
       border-radius: 4px 4px 4px 4px;
       font-family: HarmonyOS Sans SC;
       font-weight: 500;
       font-size: 12px;
-      color: #00a64b;
+      color: #ff0000;
       padding: 5px 8px;
+      cursor: pointer;
     }
     .go-to-btn {
       font-family: HarmonyOS Sans SC;
