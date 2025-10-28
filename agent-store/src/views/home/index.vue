@@ -9,7 +9,7 @@
         v-for="(item, index) in agentList"
         :key="index"
         class="item"
-        :class="{ active: item.running }"
+        :class="{ active: item.status == 'running' }"
         @click="handleItemClick(index)"
       >
         <div class="flex gap-2 items-center">
@@ -26,25 +26,26 @@
         </el-tooltip>
         <div class="flex items-center justify-between">
           <div
-            v-if="curStatus.status != 'unload' && curStatus.id == item.id"
+            v-if="
+              curStatus.id === item.id &&
+              (curStatus.status === 'loading' || curStatus.status === 'loaded')
+            "
             class="flex justify-between items-center w-full"
           >
             <div
               :class="
-                curStatus.status == 'loading' ? 'loading-btn' : 'loaded-btn'
+                curStatus.status === 'loading' ? 'loading-btn' : 'loaded-btn'
               "
             >
-              {{ curStatus.status == "loading" ? "加载中" : "加载完成" }}
+              {{ curStatus.status === "loading" ? "加载中" : "加载完成" }}
             </div>
-            <div v-if="curStatus.status == 'loaded'" class="go-to-btn">
+            <div v-if="curStatus.status === 'loaded'" class="go-to-btn">
               前往使用
             </div>
           </div>
           <div v-else>
-            <div v-if="!curAgent">
-              <div class="run-btn" @click.stop="startAgent(item)">开始运行</div>
-            </div>
-            <div v-else>
+            <!-- 有正在运行的Agent时，其他Agent显示提示 -->
+            <div v-if="curAgent">
               <el-tooltip class="box-item" effect="dark" placement="bottom">
                 <div
                   class="run-btn"
@@ -71,15 +72,19 @@
                 </template>
               </el-tooltip>
             </div>
+            <!-- 没有运行的Agent时，显示可点击按钮 -->
+            <div v-else>
+              <div class="run-btn" @click.stop="startAgent(item)">开始运行</div>
+            </div>
           </div>
-          <!-- <div
+        </div>
+        <!-- <div
             v-else
             :class="item.status == 'loading' ? 'loading-btn' : 'loaded-btn'"
           >
             {{ item.status == "loading" ? "加载中" : "加载完成" }}
           </div>
           <div v-if="item.status == 'loaded'" class="go-to-btn">前往使用</div> -->
-        </div>
         <!-- <div v-if="item.status == 'unload'">
             <div v-if="curAgent == item.title" class="run-btn">开始运行</div>
             <el-tooltip
@@ -141,56 +146,63 @@ defineOptions({
 
 // const agentList = ref([
 //   {
+//     id: 1,
 //     icon: aiPodcastIcon,
-//     title: "AI博客",
+//     name: "AI博客",
 //     desc: "一站式智能辅助工具，智能内容生成、内容质量优化、运营自动化、个性化定制赋能博客全流程",
 //     link: "",
 //     running: true,
 //     status: "unload",
 //   },
 //   {
+//     id: 2,
 //     icon: textToPicIcon,
-//     title: "文生图",
+//     name: "文生图",
 //     desc: "可将文字描述精准转化为图像，赋能创作、设计、营销等多元场景",
 //     link: "",
 //     running: false,
 //     status: "loaded",
 //   },
 //   {
+//     id: 3,
 //     icon: textToVideoIcon,
-//     title: "文生视频",
+//     name: "文生视频",
 //     desc: "可将文字描述生成动态视频，支持风格定制，赋能多场景且提升视频制作效率",
 //     link: "",
 //     running: false,
 //     status: "loading",
 //   },
 //   {
+//     id: 4,
 //     icon: documentParseIcon,
-//     title: "文档解析",
+//     name: "文档解析",
 //     desc: "可解析 PDF/Word 等多格式文档，提取文本、表格、图片信息并结构化，赋能办公、科研等场景",
 //     link: "",
 //     running: false,
 //     status: "unload",
 //   },
 //   {
+//     id: 5,
 //     icon: aiChatIcon,
-//     title: "智能客服",
+//     name: "智能客服",
 //     desc: "可多渠道实时响应咨询、自动处理常见问题，赋能企业服务、售后等场景",
 //     link: "",
 //     running: false,
 //     status: "unload",
 //   },
 //   {
+//     id: 5,
 //     icon: coStormIcon,
-//     title: "Co-STORM",
+//     name: "Co-STORM",
 //     desc: "支持多主体协同研讨，拆解问题、生成方案并管控流程，赋能企业决策、项目攻坚等场景",
 //     link: "",
 //     running: false,
 //     status: "unload",
 //   },
 //   {
+//     id: 6,
 //     icon: meetingIcon,
-//     title: "会议纪要&同声传译",
+//     name: "会议纪要&同声传译",
 //     desc: "可实时多语言同声传译、自动整理会议议题 / 决议 / 待办，赋能高效会议管理",
 //     link: "",
 //     running: false,
@@ -203,14 +215,24 @@ const initialize = () => {
   useAgentStoreHook()
     .agentList()
     .then(res => {
-      console.log(res);
       agentList.value = res.agents;
+      const runningItem = agentList.value.find(
+        item => item.status === "running"
+      );
+      if (runningItem) {
+        curStatus.value = {
+          id: runningItem.id,
+          status: "loaded" // 已运行的Agent状态为loaded
+        };
+      } else {
+        curStatus.value = { id: -1, status: "unload" };
+      }
     });
 };
-initialize();
+// initialize();
 const curAgent = computed(() => {
   const runningAgent = agentList.value.find(item => item.status == "running");
-  return runningAgent ? runningAgent.title : "";
+  return runningAgent ? runningAgent.name : "";
 });
 const handleItemClick = (clickedIndex: number) => {
   agentList.value = agentList.value.map((item, index) => ({
@@ -219,17 +241,23 @@ const handleItemClick = (clickedIndex: number) => {
   }));
 };
 const startAgent = (item: object) => {
+  if (curStatus.value.id === item.id && curStatus.value.status === "loaded")
+    return;
   curStatus.value = {
     id: item.id,
     status: "loading"
   };
-  console.log(item);
   useAgentStoreHook()
     .openAgent(item.id)
     .then(res => {
       curStatus.value.status = "loaded";
-      curAgent.value = item.name;
       initialize();
+    })
+    .catch(err => {
+      // 失败时重置状态，避免UI错误
+      console.error("开启Agent失败", err);
+      curStatus.value = { id: -1, status: "unload" };
+      initialize(); // 重新拉取状态
     });
 };
 </script>
@@ -240,7 +268,7 @@ const startAgent = (item: object) => {
     border-bottom: 1px solid #eef2f7;
     padding: 24px;
     span {
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 700;
       font-size: 14px;
       color: #202a2f;
@@ -249,7 +277,7 @@ const startAgent = (item: object) => {
   }
   .new-btn {
     background-color: #202a2f;
-    font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+    font-family: HarmonyOS Sans SC;
     font-weight: 400;
     font-size: 13px;
     color: #ffffff;
@@ -292,7 +320,7 @@ const startAgent = (item: object) => {
       width: 64px;
       border-radius: 4px 4px 4px 4px;
       border: 1px solid #1096fd;
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 500;
       font-size: 12px;
       color: #1096fd;
@@ -309,7 +337,7 @@ const startAgent = (item: object) => {
       width: 64px;
       background: #d3f4ff;
       border-radius: 4px 4px 4px 4px;
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 500;
       font-size: 12px;
       color: #1096fd;
@@ -319,14 +347,14 @@ const startAgent = (item: object) => {
       width: 64px;
       background: #d3ffd7;
       border-radius: 4px 4px 4px 4px;
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 500;
       font-size: 12px;
       color: #00a64b;
       padding: 5px 8px;
     }
     .go-to-btn {
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 400;
       font-size: 13px;
       color: #202a2f;
@@ -336,7 +364,7 @@ const startAgent = (item: object) => {
       text-decoration-line: underline;
     }
     .run-tips {
-      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC;
       font-weight: 400;
       font-size: 12px;
       .no-btn {
