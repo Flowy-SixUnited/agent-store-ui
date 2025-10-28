@@ -61,12 +61,7 @@ const handleNextPage = () => {
       class="image-left"
       @click="handlePrevPage"
     />
-    <div
-      v-loading="loading"
-      v-if="fileType === 'pdf'"
-      class="h-[calc(100vh-505px)]"
-      element-loading-text="加载中"
-    >
+    <div v-if="fileType === 'pdf'" class="h-[calc(100vh-505px)]">
       <el-scrollbar>
         <vue-pdf-embed
           ref="pdfRef"

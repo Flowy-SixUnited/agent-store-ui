@@ -32,13 +32,24 @@
         /></el-icon>
       </div>
       <div class="flex justify-between gap-8 mt-2">
-        <div class="start-button" :class="{ disabled: fileList.length === 0 }" @click="handleConvert">开始转换</div>
+        <div
+          class="start-button"
+          :class="{ disabled: fileList.length === 0 }"
+          @click="handleConvert"
+        >
+          开始转换
+        </div>
         <div class="clear-button" @click="removeFile">清除内容</div>
       </div>
       <div class="content">
         <span class="tips">上传文件/图片效果预览</span>
         <div v-if="!fileInfo.filePath" class="preview"></div>
-        <PDF v-else class="file-preview" :fileUrl="fileInfo.filePath" :fileName="fileInfo.fileName" />
+        <PDF
+          v-else
+          class="file-preview"
+          :fileUrl="fileInfo.filePath"
+          :fileName="fileInfo.fileName"
+        />
       </div>
     </div>
   </div>
@@ -53,6 +64,7 @@ import docxIcon from "@/assets/home/file/docx.png";
 import xlsxIcon from "@/assets/home/file/xlsx.png";
 import pdfIcon from "@/assets/home/file/pdf.png";
 import pngIcon from "@/assets/home/file/png.png";
+import { useDocumentStoreHook } from "@/store/modules/document";
 const fileInfo = ref({
   filePath: "",
   fileType: "pdf",
@@ -101,9 +113,21 @@ const handleFileChange = (
     fileName: file.name,
     fileSize: file.size
   };
+  const formdata = new FormData();
+  formdata.append("file", file.raw, file.name);
+  useDocumentStoreHook()
+    .upload(formdata)
+    .then(res => {
+      console.log(res);
+    });
 };
 const handleConvert = () => {
   emit("convert", fileList.value, fileInfo.value.filePath);
+  useDocumentStoreHook()
+    .generate(fileInfo.value.fileName)
+    .then(res => {
+      console.log(res);
+    });
 };
 const removeFile = () => {
   fileList.value = [];
@@ -135,7 +159,6 @@ const formatFileSize = (size: number): string => {
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 };
-
 </script>
 <style scoped lang="scss">
 .body {

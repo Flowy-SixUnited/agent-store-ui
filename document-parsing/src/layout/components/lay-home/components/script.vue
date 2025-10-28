@@ -17,23 +17,7 @@
         />转化完成，共用时：{{ formatTime(totalLoadingTime) }}
       </div>
     </div>
-    <div v-if="fileList.length > 0" class="file">
-      <div class="flex items-center gap-2">
-        <img class="w-7 h-7" src="@/assets/home/file/pdf.png" />
-        <span class="file-name">{{ fileList[0].name }}</span>
-        <span class="file-size">{{ formatFileSize(fileList[0].size) }}</span>
-      </div>
-      <img
-        class="w-6 h-6 cursor-pointer"
-        src="@/assets/home/download.png"
-        alt="download"
-        @click="handleDownload"
-      />
-    </div>
-    <div
-      class="result-content"
-      :style="{ height: status === 'ready' ? '522px' : '448px' }"
-    >
+    <div class="result-content">
       <div class="result-switch">
         <div
           class="item"
@@ -49,7 +33,10 @@
       <div v-if="status === 'loading'" class="loading-container">
         <LoadingView />
       </div>
-      <Result :fileUrl="fileUrl" v-if="status === 'success'" />
+      <!-- <Result :fileUrl="fileUrl"  /> -->
+      <div v-if="status === 'success'" class="result-container">
+        <div>nih</div>
+      </div>
     </div>
   </div>
 </template>
@@ -77,8 +64,8 @@ const props = defineProps({
 });
 const tagList = ref([
   { name: "MMD 渲染", active: false },
-  { name: "MMD", active: true },
-  { name: "Qwen.html", active: false }
+  { name: "MMD", active: true }
+  // { name: "Qwen.html", active: false }
 ]);
 const handleTagClick = (clickIndex: number) => {
   tagList.value.forEach((tag: { active: boolean }) => {
@@ -235,13 +222,13 @@ onUnmounted(() => {
   .result-content {
     position: relative;
     margin-top: 16px;
-    // height: 445px;
+    height: 510px;
     background: #f7f7f7;
     border-radius: 4px 4px 4px 4px;
     border: 1px solid #ffffff;
     padding: 12px;
     .result-switch {
-      width: 230px;
+      width: 140px;
       background: #FFFFFF;
       border-radius: 8px 8px 8px 8px;
       font-family: Inter, Inter;
@@ -274,6 +261,14 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .result-container {
+      margin: 10px;
+      max-height: 435px;
+      overflow-y: auto;
+      font-family: Inter, Inter;
+      font-weight: 400;
+      font-size: 15px;
     }
   }
 }
