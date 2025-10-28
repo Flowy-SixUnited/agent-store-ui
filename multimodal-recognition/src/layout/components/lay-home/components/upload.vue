@@ -1,20 +1,20 @@
 <template>
   <div class="upload w-124">
-    <div class="tips">请上文件（支持音频、视频、图片）</div>
+    <div class="tips">请上文件（仅支持图片）</div>
     <el-upload
       v-if="fileList.length === 0"
       class="upload-demo"
       drag
       action="#"
       :auto-upload="false"
-      :accept="'.mp3,.wav,.ogg,.webm,.m4a,.jpg,.jpeg,.png,.gif,.bmp,.mp4,.avi,.mov'"
+      :accept="'.jpg,.jpeg,.png'"
       :limit="1"
       :show-file-list="false"
       :on-change="handleFileChange"
     >
       <img class="w-8 h-8" src="@/assets/home/upload.png" alt="icon" />
       <div class="el-upload__text">
-        <span class="text">支持mov/mp4/jpg/png格式<span class="tip">（100MB以内）</span></span>
+        <span class="text">支持jpg/png/jpeg格式<span class="tip">（100MB以内）</span></span>
         <div class="button">选择文件</div>
       </div>
     </el-upload>

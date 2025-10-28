@@ -36,6 +36,7 @@ import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
 import PromptWord from "@/layout/components/lay-home/components/prompt-word.vue";
 import Upload from "@/layout/components/lay-home/components/upload.vue";
+import { useMultimodalStoreHook } from "@/store/modules/multimodal";
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";
 defineOptions({
@@ -48,23 +49,119 @@ const result = ref({
   fileSize: "",
   scriptText: ""
 });
+const promptText = ref("");
+const imageBase64 = ref("");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
   fileList.value = newFileList;
   console.log(fileList.value.length);
+  const file = newFileList[0].raw;
+  if (!file) {
+    // 若未选择文件，清空相关值
+    imageBase64.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  // 读取完成后触发（异步）
+  reader.onload = () => {
+    if (typeof reader.result === "string") {
+      // 提取 base64 数据（去掉前缀）
+      imageBase64.value = reader.result.split(",")[1] || "";
+    }
+  };
+
+  // 处理读取失败的情况
+  reader.onerror = () => {
+    console.error("文件读取失败", reader.error);
+    imageBase64.value = "";
+  };
+
+  // 开始异步读取文件
+  reader.readAsDataURL(file);
 };
-const promptText = ref("");
+// const handleFileChange = (newFileList: UploadRawFile[]) => {
+//   fileList.value = newFileList;
+//   console.log(fileList.value.length);
+//   const file = newFileList[0];
+//   if (!file) return;
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     // 去掉 data:image/xxx;base64, 前缀，只留纯数据
+//     imageBase64.value = reader.result.split(",")[1];
+//   };
+//   reader.readAsDataURL(file);
+//   promptText.value = imageBase64.value;
+// };
+// async function ask = () => {
+//   // loading.value = true
+//   // answer.value = ''
+//   try {
+//     const res = await fetch('https://api.openai.com/v1/chat/completions', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         /* !!! 不要直接暴露 Key，此处仅演示 !!! */
+//         Authorization: `Bearer ${import.meta.env.VITE_OPENAI_KEY}`
+//       },
+//       body: JSON.stringify({
+//         model: 'gpt-4o',
+//         messages: [
+//           {
+//             role: 'user',
+//             content: [
+//               { type: 'text', text: question.value },
+//               {
+//                 type: 'image_url',
+//                 image_url: { url: `data:image/jpeg;base64,${imageBase64.value}` }
+//               }
+//             ]
+//           }
+//         ],
+//         max_tokens: 400
+//       })
+//     })
+
+//     const data = await res.json()
+//     if (!res.ok) throw new Error(data.error?.message || '请求失败')
+//     answer.value = data.choices[0].message.content
+//   } catch (e) {
+//     answer.value = '出错：' + e.message
+//   } finally {
+//     loading.value = false
+//   }
+// }
+
 const handleTextChange = (newText: string) => {
   promptText.value = newText;
   console.log(promptText.value);
 };
 const handleGenerate = () => {
-  if (fileList.value.length === 0) {
-    return;
-  }
-  result.value.fileName =
-    "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
-  result.value.fileSize = "2.4MB";
-  result.value.scriptText = promptText.value;
+  // if (fileList.value.length === 0) {
+  //   return;
+  // }
+  // result.value.fileName =
+  //   "pdf_parse_jn2Ffcffb1...f_parse_results2F20251017_110929_result.zip";
+  // result.value.fileSize = "2.4MB";
+  // result.value.scriptText = promptText.value;
+  const data = {
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: promptText.value },
+          {
+            type: "image_url",
+            image_url: { url: `data:image/jpeg;base64,${imageBase64.value}` }
+          }
+        ]
+      }
+    ],
+    max_tokens: 400
+  };
+  useMultimodalStoreHook()
+    .generate(data)
+    .then(res => {});
 };
 </script>
 <style scoped lang="scss">

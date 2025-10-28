@@ -21,21 +21,17 @@ const upload = ref<UploadInstance>();
 defineOptions({
   name: "home"
 });
+
 const scriptText = ref("");
 
-const fileList = ref<UploadRawFile[]>([]);
 const emit = defineEmits(["update:text"]);
 watch(
   () => scriptText.value,
   (newVal) => {
+    console.log(scriptText.value);
     emit("update:text", newVal);
   }
 );
-const formatFileSize = (size: number): string => {
-  if (size < 1024) return `${size}B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)}KB`;
-  return `${(size / (1024 * 1024)).toFixed(1)}MB`;
-};
 </script>
 <style scoped lang="scss">
 .prompt-word {
