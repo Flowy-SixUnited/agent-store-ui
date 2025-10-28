@@ -15,7 +15,10 @@
     >
       <Chat :content="inputValue" />
       <div class="input-fixed">
-        <div class="new-chat">
+        <div
+          class="new-chat"
+          @click="((isConversation = false), (autosize.minRows = 3))"
+        >
           <el-icon :size="12" color="#202B2F"><Plus /></el-icon> 开启新会话
         </div>
         <Inputs
@@ -41,7 +44,7 @@ const autosize = ref({ minRows: 3, maxRows: 12 });
 const isConversation = ref(false);
 // 发送消息
 const sendMessage = () => {
-  autosize.value = { minRows: 1.5, maxRows: 12 };
+  autosize.value.minRows = 1.5;
   isConversation.value = true;
   // if (isNew.value && !disabled.value) {
   //   // 过滤失败的文件
@@ -99,6 +102,7 @@ const sendMessage = () => {
     color: #1f2937;
     line-height: 32px;
     text-align: center;
+    margin-bottom: 40px;
   }
 }
 .input-fixed {
@@ -121,6 +125,8 @@ const sendMessage = () => {
     display: flex;
     align-items: center;
     gap: 5px;
+    margin-bottom: 16px;
+    cursor: pointer;
   }
 }
 </style>

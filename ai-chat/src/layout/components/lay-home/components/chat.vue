@@ -4,12 +4,13 @@
       {{ content }}
     </div>
     <div class="message">
-      {{ message }}
+      <Markdown :content="message" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import Markdown from "./markdown.vue";
 const props = defineProps({
   content: {
     type: String,

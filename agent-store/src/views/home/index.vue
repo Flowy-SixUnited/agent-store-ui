@@ -229,7 +229,7 @@ const initialize = () => {
       }
     });
 };
-// initialize();
+initialize();
 const curAgent = computed(() => {
   const runningAgent = agentList.value.find(item => item.status == "running");
   return runningAgent ? runningAgent.name : "";

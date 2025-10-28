@@ -102,9 +102,9 @@ defineExpose({
 
 <style lang="scss" scoped>
 .content {
-  margin: 40px auto;
+  margin-bottom: 40px;
   width: 800px;
-  min-height: 160px;
+  // min-height: 160px;
   background: #ffffff;
   box-shadow: 0px 0px 10px 0px rgba(176, 198, 212, 0.3);
   border-radius: 12px;
