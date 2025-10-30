@@ -4,8 +4,7 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >多模态识别 Agent
-          可处理多类数据，具整合、关联、响应能力，应用于安防、医疗、自动驾驶等场景。</span
+          >集图像与文本于一体的智能分析专家，能综合多种信息源进行深度理解与洞察，适用于报告分析、舆情研究与复杂图像数据解读。</span
         >
       </div>
       <div class="tools">
@@ -41,13 +40,13 @@ import { useMultimodalStoreHook } from "@/store/modules/multimodal";
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";
 defineOptions({
-  name: "home"
+  name: "home",
 });
 const fileList = ref<UploadRawFile[]>([]);
 const result = ref({
   fileName: "",
   fileSize: "",
-  scriptText: ""
+  scriptText: "",
 });
 const content = ref("");
 const status = ref("ready");
@@ -95,16 +94,16 @@ const handleGenerate = () => {
         content: [
           {
             type: "text",
-            text: promptText.value
+            text: promptText.value,
           },
           {
             type: "image_url",
             image_url: {
-              url: `data:image/png;base64,${imageBase64.value}`
-            }
-          }
-        ]
-      }
+              url: `data:image/png;base64,${imageBase64.value}`,
+            },
+          },
+        ],
+      },
     ],
     stream: false,
     reasoning_format: "auto",
@@ -127,12 +126,12 @@ const handleGenerate = () => {
     dry_allowed_length: 2,
     dry_penalty_last_n: -1,
     samplers: ["top_k", "typ_p", "top_p", "min_p", "temperature"],
-    timings_per_token: true
+    timings_per_token: true,
   };
   status.value = "loading";
   useMultimodalStoreHook()
     .generate(data)
-    .then(res => {
+    .then((res) => {
       console.log(res);
       content.value = res.choices[0].message.content;
       status.value = "success";

@@ -4,9 +4,7 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >AI 播客智能体是 AI + 播客新应用，可自动选题 / 脚本 / 语音 / 翻译，凭
-          NLP
-          与知识图谱快出高质量内容，支持智能剪辑配乐，还能互动收反馈优化，降创作门槛、推行业发展。</span
+          >一站式智能播客创作助手，能将文字脚本自然转换为高质量语音对话内容，自动优化语调与情感表现，支持内容润色和风格定制，让播客创作更高效、更具人声魅力。</span
         >
       </div>
       <div class="select">
@@ -21,10 +19,10 @@
     </div>
     <div v-if="type === 'clone'" class="tools">
       <div class="tool-item">
-        <Audio title="1" @playAudio1="handlePlayAudio1" @text1="handleText1"/>
+        <Audio title="1" @playAudio1="handlePlayAudio1" @text1="handleText1" />
       </div>
       <div class="tool-item">
-        <Audio title="2" @playAudio2="handlePlayAudio2" @text2="handleText2"/>
+        <Audio title="2" @playAudio2="handlePlayAudio2" @text2="handleText2" />
       </div>
       <div class="tool-item">
         <Script
@@ -75,13 +73,13 @@ import { ref, watch } from "vue";
 import { title } from "process";
 import { List } from "echarts";
 defineOptions({
-  name: "home"
+  name: "home",
 });
 const type = ref("default");
 const fileList = ref<UploadRawFile[]>([]);
 const result = ref({
   fileName: "",
-  fileSize: ""
+  fileSize: "",
 });
 const status = ref("ready");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
@@ -90,7 +88,7 @@ const handleFileChange = (newFileList: UploadRawFile[]) => {
 const audioInfo = ref({
   url: "",
   name: "",
-  size: 0
+  size: 0,
 });
 const rawData = ref({
   audio1: "audio/female/自然声.mp3",
@@ -101,13 +99,13 @@ const rawData = ref({
     "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
   text_list: [
     "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
-    "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～"
-  ]
+    "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
+  ],
 });
-const handleVocice1 = audio => {
+const handleVocice1 = (audio) => {
   rawData.value.audio1 = audio;
 };
-const handleVocice2 = audio => {
+const handleVocice2 = (audio) => {
   rawData.value.audio2 = audio;
 };
 const handleGenerate = () => {
@@ -120,7 +118,7 @@ const handleGenerate = () => {
   status.value = "loading";
   usePodcastStoreHook()
     .generate(rawData.value)
-    .then(res => {
+    .then((res) => {
       if (res.success) {
         console.log(res);
         audioInfo.value.url = res.filename;
@@ -170,7 +168,7 @@ watch(
   },
   {
     immediate: false,
-    deep: false
+    deep: false,
   }
 );
 </script>

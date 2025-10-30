@@ -4,7 +4,8 @@
       <div class="content">
         <img class="icon" src="@/assets/home/icon.png" alt="icon" />
         <span class="title"
-          >文档解析 Agent 可多格式解析、提关键信息，能降本提效、助内容理解、优化格式</span
+          >高效读取与解析 PDF
+          文档内容，支持结构化提取、信息摘要与数据识别。无论是合同报告还是科研资料，都能轻松理解与整理，提升办公处理效率。</span
         >
       </div>
       <div class="tools">
@@ -35,7 +36,7 @@ import Tips from "@/layout/components/lay-home/components/tips.vue";
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";
 defineOptions({
-  name: "home"
+  name: "home",
 });
 const fileList = ref<UploadRawFile[]>([]);
 const fileUrl = ref("");
