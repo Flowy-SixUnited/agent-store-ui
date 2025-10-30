@@ -17,9 +17,11 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
-import Lock from "~icons/ri/lock-fill";
+// import Lock from "~icons/ri/lock-fill";
 import User from "~icons/ri/user-3-fill";
-
+import { Lock } from "@element-plus/icons-vue";
+import { storageLocal } from "@pureadmin/utils";
+import { userKey } from "@/utils/auth";
 defineOptions({
   name: "Login"
 });
@@ -38,38 +40,45 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
+  email: "666@qq.com",
   password: "admin123"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate(valid => {
-    if (valid) {
-      loading.value = true;
-      useUserStoreHook()
-        .loginByUsername({
-          username: ruleForm.username,
-          password: ruleForm.password
-        })
-        .then(res => {
-          if (res.success) {
-            // 获取后端路由
-            return initRouter().then(() => {
-              disabled.value = true;
-              router
-                .push(getTopMenu(true).path)
-                .then(() => {
-                  message("登录成功", { type: "success" });
-                })
-                .finally(() => (disabled.value = false));
-            });
-          } else {
-            message("登录失败", { type: "error" });
-          }
-        })
-        .finally(() => (loading.value = false));
-    }
-  });
+  disabled.value = true;
+  const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
+  storageLocal().setItem(userKey, mockUserInfo);
+  router.push({ path: "/" });
+  message("登录成功", { type: "success" });
+  disabled.value = false;
+  // await formEl.validate(valid => {
+  //   if (valid) {
+  //     loading.value = true;
+  //     useUserStoreHook()
+  //       .loginByUsername({
+  //         username: ruleForm.username,
+  //         password: ruleForm.password
+  //       })
+  //       .then(res => {
+  //         if (res.success) {
+  //           // 获取后端路由
+  //           return initRouter().then(() => {
+  //             disabled.value = true;
+  //             router
+  //               .push(getTopMenu(true).path)
+  //               .then(() => {
+  //                 message("登录成功", { type: "success" });
+  //               })
+  //               .finally(() => (disabled.value = false));
+  //           });
+  //         } else {
+  //           message("登录失败", { type: "error" });
+  //         }
+  //       })
+  //       .finally(() => (loading.value = false));
+  //   }
+  // });
 };
 
 const immediateDebounce: any = debounce(
@@ -89,82 +98,47 @@ useEventListener(document, "keydown", ({ code }) => {
 </script>
 
 <template>
-  <div class="select-none">
-    <img :src="bg" class="wave" />
-    <div class="flex-c absolute right-5 top-3">
-      <!-- 主题 -->
-      <el-switch
-        v-model="dataTheme"
-        inline-prompt
-        :active-icon="dayIcon"
-        :inactive-icon="darkIcon"
-        @change="dataThemeChange"
-      />
-    </div>
-    <div class="login-container">
-      <div class="img">
-        <component :is="toRaw(illustration)" />
-      </div>
-      <div class="login-box">
-        <div class="login-form">
-          <avatar class="avatar" />
-          <Motion>
-            <h2 class="outline-hidden">{{ title }}</h2>
-          </Motion>
-
-          <el-form
-            ref="ruleFormRef"
-            :model="ruleForm"
-            :rules="loginRules"
-            size="large"
+  <div class="container">
+    <div class="card">
+      <img class="w-10 h-10" src="@/assets/home/login/logo.png" alt="logo" />
+      <span class="title">欢迎使用NANO Station</span>
+      <el-form
+        ref="ruleFormRef"
+        :model="ruleForm"
+        label-width="auto"
+        class="form-demo"
+        :rules="loginRules"
+      >
+        <el-form-item
+          prop="email"
+          :rules="[
+            {
+              type: 'email',
+              message: 'Please input correct email address',
+              trigger: ['blur', 'change']
+            }
+          ]"
+        >
+          <el-input v-model="ruleForm.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="ruleForm.password"
+            show-password
+            placeholder="密码"
+            type="password"
+            :prefix-icon="Lock"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            color="#2173FC"
+            class="w-full login-btn"
+            @click="onLogin(ruleFormRef)"
+            >登录</el-button
           >
-            <Motion :delay="100">
-              <el-form-item
-                :rules="[
-                  {
-                    required: true,
-                    message: '请输入账号',
-                    trigger: 'blur'
-                  }
-                ]"
-                prop="username"
-              >
-                <el-input
-                  v-model="ruleForm.username"
-                  clearable
-                  placeholder="账号"
-                  :prefix-icon="useRenderIcon(User)"
-                />
-              </el-form-item>
-            </Motion>
-
-            <Motion :delay="150">
-              <el-form-item prop="password">
-                <el-input
-                  v-model="ruleForm.password"
-                  clearable
-                  show-password
-                  placeholder="密码"
-                  :prefix-icon="useRenderIcon(Lock)"
-                />
-              </el-form-item>
-            </Motion>
-
-            <Motion :delay="250">
-              <el-button
-                class="w-full mt-4!"
-                size="default"
-                type="primary"
-                :loading="loading"
-                :disabled="disabled"
-                @click="onLogin(ruleFormRef)"
-              >
-                登录
-              </el-button>
-            </Motion>
-          </el-form>
-        </div>
-      </div>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
@@ -174,7 +148,50 @@ useEventListener(document, "keydown", ({ code }) => {
 </style>
 
 <style lang="scss" scoped>
-:deep(.el-input-group__append, .el-input-group__prepend) {
+.container {
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+
+  margin: 0;
   padding: 0;
+  font-family:
+    HarmonyOS Sans SC,
+    HarmonyOS Sans SC;
+  background-image: url("@/assets/home/login/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  .card {
+    margin: 0 auto;
+    width: 400px;
+    height: 420px;
+    background: #ffffff;
+    box-shadow: 0px 0px 20px 0px rgba(73, 156, 200, 0.2);
+    border-radius: 24px 24px 24px 24px;
+    border: 1px solid #ffffff;
+    padding: 31px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 27px;
+    .title {
+      font-weight: 700;
+      font-size: 28px;
+      color: #000000;
+      line-height: 33px;
+    }
+    .form-demo {
+      width: 320px;
+      margin-top: 7px;
+      .login-btn {
+        margin-top: 38px;
+      }
+    }
+  }
 }
 </style>

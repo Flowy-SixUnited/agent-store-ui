@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <!-- <div>
     <Home />
-  </div>
-  <!-- <el-config-provider :locale="currentLocale">
+  </div> -->
+  <el-config-provider :locale="currentLocale">
     <router-view />
-    <ReDialog />
-  </el-config-provider> -->
+    <!-- <ReDialog /> -->
+  </el-config-provider>
 </template>
 
 <script lang="ts">
@@ -18,9 +18,9 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 export default defineComponent({
   name: "app",
   components: {
-    [ElConfigProvider.name]: ElConfigProvider,
-    // ReDialog,
-    Home
+    [ElConfigProvider.name]: ElConfigProvider
+    // ReDialog
+    // Home
   },
   computed: {
     currentLocale() {

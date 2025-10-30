@@ -5,7 +5,7 @@ export default {
   path: "/",
   name: "Home",
   component: Layout,
-  redirect: "/welcome",
+  redirect: "/ai-chat",
   meta: {
     icon: "ep/home-filled",
     title: "首页",
@@ -13,11 +13,11 @@ export default {
   },
   children: [
     {
-      path: "/welcome",
-      name: "Welcome",
-      component: () => import("@/views/welcome/index.vue"),
+      path: "/ai-chat",
+      name: "AI Chat",
+      component: () => import("@/views/home/index.vue"),
       meta: {
-        title: "首页",
+        title: "智能客服",
         showLink: VITE_HIDE_HOME === "true" ? false : true
       }
     }

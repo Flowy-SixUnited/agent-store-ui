@@ -85,35 +85,6 @@ function toggle(device: string, bool: boolean) {
 
 // 判断是否可自动关闭菜单栏
 let isAutoCloseSidebar = true;
-
-useResizeObserver(appWrapperRef, entries => {
-  if (isMobile) return;
-  const entry = entries[0];
-  const [{ inlineSize: width, blockSize: height }] = entry.borderBoxSize;
-  useAppStoreHook().setViewportSize({ width, height });
-  width <= 760 ? setTheme("vertical") : setTheme(useAppStoreHook().layout);
-  /** width app-wrapper类容器宽度
-   * 0 < width <= 760 隐藏侧边栏
-   * 760 < width <= 990 折叠侧边栏
-   * width > 990 展开侧边栏
-   */
-  if (width > 0 && width <= 760) {
-    toggle("mobile", false);
-    isAutoCloseSidebar = true;
-  } else if (width > 760 && width <= 990) {
-    if (isAutoCloseSidebar) {
-      toggle("desktop", false);
-      isAutoCloseSidebar = false;
-    }
-  } else if (width > 990 && !set.sidebar.isClickCollapse) {
-    toggle("desktop", true);
-    isAutoCloseSidebar = true;
-  } else {
-    toggle("desktop", false);
-    isAutoCloseSidebar = false;
-  }
-});
-
 onMounted(() => {
   if (isMobile) {
     toggle("mobile", false);
@@ -157,8 +128,9 @@ const LayHeader = defineComponent({
 </script>
 
 <template>
-  <div ref="appWrapperRef" :class="['app-wrapper', set.classes]">
-    <div
+  <div>
+    <LayContent :fixed-header="set.fixedHeader" />
+    <!-- <div
       v-show="
         set.device === 'mobile' &&
         set.sidebar.opened &&
@@ -181,7 +153,7 @@ const LayHeader = defineComponent({
     >
       <div v-if="set.fixedHeader">
         <LayHeader />
-        <!-- 主体内容 -->
+
         <LayContent :fixed-header="set.fixedHeader" />
       </div>
       <el-scrollbar v-else>
@@ -192,44 +164,11 @@ const LayHeader = defineComponent({
           <BackTopIcon />
         </el-backtop>
         <LayHeader />
-        <!-- 主体内容 -->
+
         <LayContent :fixed-header="set.fixedHeader" />
       </el-scrollbar>
     </div>
-    <!-- 系统设置 -->
-    <LaySetting />
+
+    <LaySetting /> -->
   </div>
 </template>
-
-<style lang="scss" scoped>
-.app-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-  &::after {
-    clear: both;
-    display: table;
-    content: "";
-  }
-
-  &.mobile.openSidebar {
-    position: fixed;
-    top: 0;
-  }
-}
-
-.app-mask {
-  position: absolute;
-  top: 0;
-  z-index: 2001;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  opacity: 0.3;
-}
-
-.re-screen {
-  margin-top: 12px;
-}
-</style>

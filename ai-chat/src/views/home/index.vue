@@ -2,30 +2,7 @@
   <div class="wh-full flex">
     <div class="flex flex-1 flex-col items-center bg-[#fcfcfc]">
       <div class="bg-cover bg-center bg-no-repeat header">
-        <div class="flex items-center gap-1 pr-6 pt-6">
-          <img class="w-4 h-4" src="@/assets/home/language.png" />
-          <el-dropdown>
-            <span class="el-dropdown-link flex items-center">
-              {{ currentLang }}
-              <el-icon class="el-icon--right">
-                <arrow-down />
-              </el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item @click="handleLangChange('简体中文')"
-                  >简体中文</el-dropdown-item
-                >
-                <el-dropdown-item @click="handleLangChange('繁体中文')"
-                  >繁体中文</el-dropdown-item
-                >
-                <el-dropdown-item @click="handleLangChange('英文')"
-                  >英文</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
+        <Language />
       </div>
       <div v-if="!isConversation" class="main">
         <div class="title">{{ $t("chat.title") }}</div>
@@ -85,20 +62,25 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { Plus, Close, ArrowDown } from "@element-plus/icons-vue";
+import { Plus, Close } from "@element-plus/icons-vue";
 import Inputs from "@/layout/components/lay-home/components/inputs.vue";
 import Chat from "@/layout/components/lay-home/components/chat.vue";
 import FileItem from "@/layout/components/lay-home/components/file-item.vue";
+import Language from "@/layout/components/lay-home/components/language.vue";
 import { useI18n } from "vue-i18n";
-const { locale, t } = useI18n();
+const { t } = useI18n();
+import { storageLocal } from "@pureadmin/utils";
+import { userKey, type DataInfo } from "@/utils/auth"; // DataInfo 是用户信息的类型定义
+
+// 2. 读取用户信息（指定类型，确保 TypeScript 类型安全）
+const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
+
+// 3. 使用用户信息（如打印、渲染到页面）
+console.log("当前登录用户：", userInfo);
 defineOptions({
   name: "home"
 });
-const currentLang = ref("简体中文");
-const handleLangChange = (lang: string) => {
-  currentLang.value = lang;
-  locale.value = lang == "简体中文" ? "zh" : lang == "繁体中文" ? "ft" : "en";
-};
+
 const messageList = ref([]);
 const inputValue = ref("");
 const autosize = ref({ minRows: 3, maxRows: 12 });
@@ -129,6 +111,7 @@ const handleOpenOrigin = (visible: boolean) => {
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
+  color: #2e5de0;
 }
 .main {
   height: calc(100vh - 130px);

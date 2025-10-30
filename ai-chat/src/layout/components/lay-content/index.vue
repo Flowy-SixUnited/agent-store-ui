@@ -57,11 +57,6 @@ const getSectionStyle = computed(() => {
         : "padding-top: 81px;"
       : "",
     hideTabs.value && !layout.value ? "padding-top: 48px;" : "",
-    !hideTabs.value && !layout.value
-      ? showModel.value == "chrome"
-        ? "padding-top: 85px;"
-        : "padding-top: 81px;"
-      : "",
     props.fixedHeader
       ? ""
       : `padding-top: 0;${
@@ -106,10 +101,7 @@ const transitionMain = defineComponent({
 </script>
 
 <template>
-  <section
-    :class="[fixedHeader ? 'app-main' : 'app-main-nofixed-header']"
-    :style="getSectionStyle"
-  >
+  <section :class="[fixedHeader ? 'app-main' : 'app-main-nofixed-header']">
     <router-view>
       <template #default="{ Component, route }">
         <LayFrame :currComp="Component" :currRoute="route">
@@ -158,7 +150,7 @@ const transitionMain = defineComponent({
                   />
                 </transitionMain>
               </div>
-              <LayFooter v-if="!hideFooter" />
+              <!-- <LayFooter v-if="!hideFooter" /> -->
             </el-scrollbar>
             <div v-else class="grow">
               <transitionMain :route="route">
@@ -188,7 +180,7 @@ const transitionMain = defineComponent({
     </router-view>
 
     <!-- 页脚 -->
-    <LayFooter v-if="!hideFooter && !fixedHeader" />
+    <!-- <LayFooter v-if="!hideFooter && !fixedHeader" /> -->
   </section>
 </template>
 
@@ -205,9 +197,5 @@ const transitionMain = defineComponent({
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.main-content {
-  margin: 24px;
 }
 </style>
