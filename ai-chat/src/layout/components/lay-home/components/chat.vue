@@ -5,12 +5,29 @@
     </div>
     <div class="message">
       <Markdown :content="message" />
-    </div>
-    <div class="origin" @click="openOrigin">
-      <div class="icon"><img :src="pdfIcon" /></div>
-      <div class="icon"><img :src="pdfIcon" /></div>
-      <span>2个引用来源</span>
-      <el-icon :size="12" color="#a8b1b7"><ArrowRight /></el-icon>
+      <div class="flex items-center justify-between">
+        <div class="origin" @click="openOrigin">
+          <div class="icon"><img :src="pdfIcon" /></div>
+          <div class="icon"><img :src="pdfIcon" /></div>
+          <span>2个{{ $t("chat.citationSources") }}</span>
+          <el-icon :size="12" color="#a8b1b7"><ArrowRight /></el-icon>
+        </div>
+        <div class="flex items-center gap-3">
+          <img
+            class="w-4 h-4 cursor-pointer"
+            src="@/assets/home/chat/like.png"
+          />
+          <div
+            class="border-left border-[1px] h-3 border-solid border-[#BFC7E0]"
+          />
+          <img
+            class="w-4 h-4 cursor-pointer"
+            src="@/assets/home/chat/copy.png"
+            alt="复制"
+            @click.stop="copyContent"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +39,9 @@ import xlsxIcon from "@/assets/home/file/xlsx.png";
 import pdfIcon from "@/assets/home/file/pdf.png";
 import pngIcon from "@/assets/home/file/png.png";
 import { ArrowRight } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
+import { ElMessage } from "element-plus";
+const { t } = useI18n();
 const props = defineProps({
   content: {
     type: String,
@@ -36,13 +56,22 @@ const message = ref(
 const openOrigin = () => {
   emit("openOrigin", true);
 };
+const copyContent = async () => {
+  try {
+    // 复制 message 的内容到剪贴板
+    await navigator.clipboard.writeText(message.value);
+    ElMessage.success(t("chat.copySuccess"));
+  } catch (err) {
+    console.error("复制失败:", err);
+    ElMessage.error(t("chat.copyFail"));
+  }
+};
 </script>
 <style scoped lang="scss">
 .conversation {
   display: flex;
   width: 800px;
   flex-direction: column;
-  padding-top: 88px;
   gap: 24px;
   .user {
     background: #f0f0f0;
@@ -51,8 +80,16 @@ const openOrigin = () => {
     max-width: 200px;
     margin-left: auto;
     border-radius: 10px 10px 0 10px;
+    font-family:
+      HarmonyOS Sans SC,
+      HarmonyOS Sans SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #0e1934;
+    line-height: 22px;
   }
   .origin {
+    margin-top: 5px;
     background: #ffffff;
     border-radius: 8px 8px 8px 8px;
     border: 1px solid #f0f0f0;

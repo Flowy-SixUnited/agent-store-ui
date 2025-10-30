@@ -10,7 +10,7 @@
             :rows="rows"
             :autosize="autosize"
             resize="none"
-            :placeholder="placeholder"
+            :placeholder="t('chat.placeholder')"
             @keydown.enter="keyCodeAction"
           />
         </div>
@@ -32,10 +32,12 @@
 </template>
 
 <script setup>
+import { useI18n } from "vue-i18n";
 import { ref, watch, toRefs } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import disableSendIcon from "@/assets/home/disable-send.png";
 import sendIcon from "@/assets/home/send.png";
+const { t } = useI18n();
 const props = defineProps({
   inputs: {
     type: String,
@@ -49,10 +51,10 @@ const props = defineProps({
     type: String,
     default: "textarea"
   },
-  placeholder: {
-    type: String,
-    default: "请问我有什么能帮助你的？"
-  },
+  // placeholder: {
+  //   type: String,
+  //   default: () => $t("chat.newChat")
+  // },
   rows: {
     type: Number,
     default: 3

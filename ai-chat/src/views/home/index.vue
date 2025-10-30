@@ -1,32 +1,34 @@
 <template>
   <div class="wh-full flex">
-    <div class="flex flex-1 flex-col items-center bg-[#fcfcfc] chat">
-      <div class="flex items-center gap-1 lang">
-        <img class="w-4 h-4" src="@/assets/home/language.png" />
-        <el-dropdown>
-          <span class="el-dropdown-link flex items-center">
-            {{ currentLang }}
-            <el-icon class="el-icon--right">
-              <arrow-down />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="handleLangChange('简体中文')"
-                >简体中文</el-dropdown-item
-              >
-              <el-dropdown-item @click="handleLangChange('繁体中文')"
-                >繁体中文</el-dropdown-item
-              >
-              <el-dropdown-item @click="handleLangChange('英文')"
-                >英文</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+    <div class="flex flex-1 flex-col items-center bg-[#fcfcfc]">
+      <div class="bg-cover bg-center bg-no-repeat header">
+        <div class="flex items-center gap-1 pr-6 pt-6">
+          <img class="w-4 h-4" src="@/assets/home/language.png" />
+          <el-dropdown>
+            <span class="el-dropdown-link flex items-center">
+              {{ currentLang }}
+              <el-icon class="el-icon--right">
+                <arrow-down />
+              </el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="handleLangChange('简体中文')"
+                  >简体中文</el-dropdown-item
+                >
+                <el-dropdown-item @click="handleLangChange('繁体中文')"
+                  >繁体中文</el-dropdown-item
+                >
+                <el-dropdown-item @click="handleLangChange('英文')"
+                  >英文</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </div>
       <div v-if="!isConversation" class="main">
-        <div class="title">你好，开始美好的一天！</div>
+        <div class="title">{{ $t("chat.title") }}</div>
         <Inputs
           ref="inputsRef"
           v-model:inputs="inputValue"
@@ -36,17 +38,24 @@
       </div>
       <div
         v-else
-        class="flex flex-col justify-between h-screen position-relative"
+        class="flex flex-col justify-between h-screen position-relative chat"
       >
-        <div v-for="(item, index) in messageList" :key="index">
-          <Chat :content="item" @open-origin="handleOpenOrigin" />
+        <div class="chat-list">
+          <Chat
+            v-for="(item, index) in messageList"
+            :key="index"
+            :content="item.content"
+            :is-ai="item.isAi"
+            @open-origin="handleOpenOrigin"
+          />
         </div>
         <div class="input-fixed">
           <div
             class="new-chat"
             @click="((isConversation = false), (autosize.minRows = 3))"
           >
-            <el-icon :size="12" color="#202B2F"><Plus /></el-icon> 开启新会话
+            <el-icon :size="12" color="#2173FC"><Plus /></el-icon>
+            {{ $t("chat.newChat") }}
           </div>
           <Inputs
             ref="inputsRef"
@@ -57,12 +66,16 @@
         </div>
       </div>
     </div>
-    <div v-if="sideVisible" class="bg-[#F9F9F9] w-70 p-4">
+    <div v-if="sideVisible" class="bg-[#FFFFFF] w-70 p-4">
       <div class="flex items-center justify-between">
         <span class="color-[#202B2F]"
-          >引用来源<span class="color-[#999999]">（2）</span></span
+          >{{ $t("chat.citationSources")
+          }}<span class="color-[#999999]">（2）</span></span
         >
-        <el-icon :size="16" @click="sideVisible = !sideVisible"
+        <el-icon
+          :size="16"
+          class="cursor-pointer"
+          @click="sideVisible = !sideVisible"
           ><Close
         /></el-icon>
       </div>
@@ -76,14 +89,15 @@ import { Plus, Close, ArrowDown } from "@element-plus/icons-vue";
 import Inputs from "@/layout/components/lay-home/components/inputs.vue";
 import Chat from "@/layout/components/lay-home/components/chat.vue";
 import FileItem from "@/layout/components/lay-home/components/file-item.vue";
+import { useI18n } from "vue-i18n";
+const { locale, t } = useI18n();
 defineOptions({
   name: "home"
 });
 const currentLang = ref("简体中文");
 const handleLangChange = (lang: string) => {
   currentLang.value = lang;
-  // 这里可以添加实际的语言切换逻辑（如i18n切换）
-  // 例如：i18n.global.locale.value = lang === '英文' ? 'en' : lang === '繁体中文' ? 'zh-TW' : 'zh-CN';
+  locale.value = lang == "简体中文" ? "zh" : lang == "繁体中文" ? "ft" : "en";
 };
 const messageList = ref([]);
 const inputValue = ref("");
@@ -91,8 +105,15 @@ const autosize = ref({ minRows: 3, maxRows: 12 });
 const isConversation = ref(false);
 // 发送消息
 const sendMessage = () => {
+  if (!inputValue.value.trim()) return; // 过滤空消息
+
+  messageList.value.push({
+    content: inputValue.value.trim(),
+    isAi: false // 标记为“用户消息”
+  });
+
+  inputValue.value = "";
   autosize.value.minRows = 1.5;
-  messageList.value.push(inputValue.value);
   isConversation.value = true;
 };
 const sideVisible = ref(false);
@@ -101,21 +122,22 @@ const handleOpenOrigin = (visible: boolean) => {
 };
 </script>
 <style scoped lang="scss">
-.chat {
-  position: relative;
-  .lang {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-  }
+.header {
+  width: 100%;
+  height: 130px;
+  background-image: url("@/assets/home/bg.png");
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
 }
 .main {
-  height: 100vh;
+  height: calc(100vh - 130px);
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   .title {
-    padding-top: 172px;
+    padding-top: 42px;
     font-family: HarmonyOS Sans SC;
     font-weight: 700;
     font-size: 32px;
@@ -123,6 +145,18 @@ const handleOpenOrigin = (visible: boolean) => {
     line-height: 32px;
     text-align: center;
     margin-bottom: 40px;
+  }
+}
+.chat {
+  height: calc(100vh - 80px);
+  padding-bottom: 80px;
+  margin-top: -50px;
+  .chat-list {
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    max-height: 550px;
+    overflow-y: auto;
   }
 }
 .input-fixed {
@@ -141,7 +175,7 @@ const handleOpenOrigin = (visible: boolean) => {
     font-family: HarmonyOS Sans SC;
     font-weight: 400;
     font-size: 14px;
-    color: #202b2f;
+    color: #2173fc;
     display: flex;
     align-items: center;
     gap: 5px;
