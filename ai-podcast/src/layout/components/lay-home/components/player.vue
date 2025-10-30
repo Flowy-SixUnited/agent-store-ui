@@ -7,6 +7,8 @@
       <img src="@/assets/home/audio/sound-bg.png" alt="sound" />
       <img src="@/assets/home/audio/sound-bg.png" alt="sound" />
       <img src="@/assets/home/audio/sound-bg.png" alt="sound" />
+      <img src="@/assets/home/audio/sound-bg.png" alt="sound" />
+      <img src="@/assets/home/audio/sound-bg.png" alt="sound" />
       <div class="sound-mask" :style="{ width: `${calculateMaskWidth()}%` }" />
     </div>
     <el-slider
@@ -49,7 +51,7 @@
           'min-width': '30px',
           padding: '8px 6px',
           display: 'flex',
-          'justify-content': 'center'
+          'justify-content': 'center',
         }"
       >
         <template #reference>
@@ -77,8 +79,8 @@ import playIcon from "@/assets/home/audio/play.png";
 const props = defineProps({
   audioUrl: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const audio = ref(new Audio(props.audioUrl));
@@ -129,7 +131,7 @@ const rewind = () => {
   }
 };
 
-const formatTime = time => {
+const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -197,7 +199,12 @@ watch(
       top: 0;
       left: 0;
       height: 100%;
-      background-color: rgba(150, 211, 242, 0.5);// 蓝色半透明蒙层，可调整颜色和透明度
+      background-color: rgba(
+        150,
+        211,
+        242,
+        0.5
+      ); // 蓝色半透明蒙层，可调整颜色和透明度
       transition: width 0.1s linear; // 平滑过渡效果
     }
   }
@@ -227,17 +234,17 @@ watch(
   height: 1px;
 }
 :deep(.el-slider__bar) {
-  background-color: #202A2F;
+  background-color: #202a2f;
   height: 3px;
 }
 :deep(.el-slider__button) {
-  border: 2px solid #202A2F;
+  border: 2px solid #202a2f;
   height: 10.5px;
   width: 10px;
 }
 :deep(.el-slider__runway) {
   height: 3px;
-  background-color: #D8D8D8;
+  background-color: #d8d8d8;
 }
 
 :deep(.el-popper.is-light) {

@@ -80,8 +80,8 @@ import { usePodcastStoreHook } from "@/store/modules/podcast";
 const props = defineProps({
   title: {
     type: String,
-    default: ""
-  }
+    default: "",
+  },
 });
 const referenceText = ref("");
 // 音频文件列表（上传组件用）
@@ -144,27 +144,27 @@ const handleFileChange = (
   }
 
   // 验证文件格式（虽然upload已限制，但二次验证更安全）
-  const validFormats = [".mp3", ".wav", ".ogg", ".webm", ".m4a"];
-  const fileExt = file.name.slice(file.name.lastIndexOf("."));
-  if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
-  }
-  if (!validFormats.includes(fileExt)) {
-    uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
-    audioFileList.value = [];
-    return;
-  }
+  // const validFormats = [".mp3",'', ".wav", ".ogg", ".webm", ".m4a"];
+  // const fileExt = file.name.slice(file.name.lastIndexOf("."));
+  // if (!validFormats.includes(fileExt)) {
+  //   uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
+  // }
+  // if (!validFormats.includes(fileExt)) {
+  //   uploadError.value = "仅支持mp3、wav、ogg、webm、m4a格式";
+  //   audioFileList.value = [];
+  //   return;
+  // }
   const formdata = new FormData();
   formdata.append("file", file.raw);
   usePodcastStoreHook()
     .upload(formdata)
-    .then(res => {
+    .then((res) => {
       // 生成预览URL（本地临时URL）
       const fileUrl = URL.createObjectURL(file.raw as Blob);
       currentAudio.value = {
         url: fileUrl,
         name: res.filename,
-        size: file.size
+        size: file.size,
       };
       if (props.title == "1") {
         emit("playAudio1", currentAudio.value);
@@ -323,9 +323,7 @@ const formatFileSize = (size: number): string => {
     // align-items: center;
     .file-name,
     .file-size {
-      font-family:
-        HarmonyOS Sans SC,
-        HarmonyOS Sans SC;
+      font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
       font-weight: 400;
       font-size: 12px;
 
