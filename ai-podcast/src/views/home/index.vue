@@ -47,7 +47,7 @@
     </div>
     <div
       class="generate"
-      :class="{ disabled: fileList.length === 0 }"
+      :class="{ disabled: rawData.text_list.length == 0 }"
       @click="handleGenerate"
     >
       生成对话音频
@@ -72,6 +72,7 @@ import type { UploadRawFile } from "element-plus";
 import { ref, watch } from "vue";
 import { title } from "process";
 import { List } from "echarts";
+import { ElMessage } from "element-plus";
 defineOptions({
   name: "home",
 });
@@ -97,10 +98,7 @@ const rawData = ref({
     "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
   text2:
     "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
-  text_list: [
-    "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
-    "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
-  ],
+  text_list: [],
 });
 const handleVocice1 = (audio) => {
   rawData.value.audio1 = audio;
@@ -109,7 +107,8 @@ const handleVocice2 = (audio) => {
   rawData.value.audio2 = audio;
 };
 const handleGenerate = () => {
-  if (fileList.value.length === 0) {
+  if (rawData.value.text_list.length === 0) {
+    ElMessage.success("请严格按照格式输入脚本内容！");
     return;
   }
   result.value.fileName =

@@ -12,7 +12,7 @@
     说话人2：别急呀小桃！我帮你解 —— 你看，要先把线头轻轻拉出来，像拆礼物丝带一样慢～​
     说话人1：哇！小枫好厉害！那我们能在兔子耳朵上缝星星纽扣吗？我带了粉色的！​
     说话人2：当然可以！等下我还能帮你画腮红，这样兔子就更可爱啦～"
-      @change="handleTextChange"
+      @input="handleTextChange"
     />
 
     <el-upload
@@ -47,25 +47,26 @@ import { Plus, Close } from "@element-plus/icons-vue";
 import type { UploadInstance, UploadRawFile } from "element-plus";
 const upload = ref<UploadInstance>();
 defineOptions({
-  name: "home"
+  name: "home",
 });
 const emit = defineEmits(["update:fileList", "update:text"]);
 const scriptText = ref("");
 const handleTextChange = () => {
   const text = scriptText.value;
-  // 正则匹配：以「说话人1：」或「说话人2：」开头，直到下一个说话人开头或文本结束
-  const regex = /(说话人1：|说话人2：)([\s\S]*?)(?=说话人1：|说话人2：|$)/g;
+  // 正则匹配：同时支持中文冒号「：」和英文冒号「:」，并兼容两种冒号前后的可能空格
+  const regex =
+    /(说话人1：|说话人1:|说话人2：|说话人2:)([\s\S]*?)(?=说话人1：|说话人1:|说话人2：|说话人2:|$)/g;
   const result = [];
   let match;
 
-  // 遍历所有匹配项
   while ((match = regex.exec(text)) !== null) {
     const [, speaker, content] = match;
-    // 替换说话人为[S1]/[S2]，并拼接内容（trim去除首尾空白）
-    const item = `${speaker === "说话人1：" ? "[S1]" : "[S2]"}${content.trim()}`;
+    // 判断说话人类型（无论用哪种冒号，统一转换为[S1]/[S2]）
+    const item = `${
+      speaker.includes("说话人1") ? "[S1]" : "[S2]"
+    }${content.trim()}`;
     result.push(item);
   }
-  console.log(result);
   emit("update:text", result);
 };
 const fileList = ref<UploadRawFile[]>([]);
@@ -77,7 +78,7 @@ const handleFileChange = (
   fileList.value = compFileList;
   const reader = new FileReader();
   reader.readAsText(file.raw); // file.raw 是原生 File 对象
-  reader.onload = e => {
+  reader.onload = (e) => {
     scriptText.value = e.target.result; // 文件内容
     handleTextChange();
   };
@@ -126,9 +127,7 @@ const formatFileSize = (size: number): string => {
   }
   .file-name,
   .file-size {
-    font-family:
-      HarmonyOS Sans SC,
-      HarmonyOS Sans SC;
+    font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
     font-weight: 400;
     font-size: 12px;
 

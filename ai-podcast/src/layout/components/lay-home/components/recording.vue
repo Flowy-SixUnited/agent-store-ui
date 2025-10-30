@@ -6,7 +6,8 @@
       class="recording"
       @click="toggleRecording"
     >
-      <img src="@/assets/home/recording.png" />
+      <Canvas v-if="isRecording" />
+      <img v-else src="@/assets/home/recording.png" />
     </div>
     <!-- 生成的音频文件列表 -->
     <div class="audio-list">
@@ -51,7 +52,7 @@ import pausePlay from "@/assets/home/pause-play.png";
 import startPlay from "@/assets/home/start-play.png";
 import { Close } from "@element-plus/icons-vue";
 import { usePodcastStoreHook } from "@/store/modules/podcast";
-
+import Canvas from "./canvas.vue";
 // 音频文件信息类型
 interface AudioFile {
   name: string;
@@ -78,7 +79,7 @@ const startRecording = async (): Promise<void> => {
     audioChunks.value = [];
     // 明确 stream 类型为 MediaStream
     const stream: MediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: true
+      audio: true,
     });
     // 创建 MediaRecorder 实例并指定类型
     mediaRecorder.value = new MediaRecorder(stream);
@@ -89,18 +90,18 @@ const startRecording = async (): Promise<void> => {
     };
     mediaRecorder.value.onstop = async () => {
       const audioBlob: Blob = new Blob(audioChunks.value, {
-        type: "audio/webm"
+        type: "audio/webm",
       });
       const audioURL: string = URL.createObjectURL(audioBlob);
       const tempAudio = new Audio(audioURL);
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         tempAudio.onloadedmetadata = resolve; // 加载元数据（含时长）后触发
       });
       // 严格按照 AudioFile 类型添加数据
       audioFiles.value.push({
         name: `recording_${Date.now()}.${getFileExtension(audioBlob.type)}`,
         url: audioURL,
-        duration: tempAudio.duration
+        duration: tempAudio.duration,
       });
       audioChunks.value = [];
       currentPlayTime.value = tempAudio.duration;
@@ -110,12 +111,14 @@ const startRecording = async (): Promise<void> => {
       }
       console.log(audioFiles.value);
       const formdata = new FormData();
-      const audioFile = new File([audioBlob], audioFiles.value[0].name, { type: "audio/wav" });
+      const audioFile = new File([audioBlob], audioFiles.value[0].name, {
+        type: "audio/wav",
+      });
       formdata.append("file", audioFile);
       console.log(audioFile);
       usePodcastStoreHook()
         .upload(formdata)
-        .then(res => {
+        .then((res) => {
           console.log(res);
           // 生成预览URL（本地临时URL）
           // const fileUrl = URL.createObjectURL(file.raw as Blob);
@@ -143,7 +146,9 @@ const formattedPlayTime = computed(() => {
   const minutes = Math.floor(currentPlayTime.value / 60);
   const seconds = Math.floor(currentPlayTime.value % 60);
   // 补零确保两位数
-  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
 });
 // 停止录音（补全类型判断）
 const stopRecording = (): void => {
@@ -171,7 +176,7 @@ const getFileExtension = (mimeType: string): string => {
     "audio/ogg": "ogg",
     "audio/mp4": "mp4",
     "audio/mpeg": "mp3",
-    "audio/wav": "wav"
+    "audio/wav": "wav",
   };
   // 找不到时返回默认值 "webm"
   return extensions[mimeType] || "webm";
@@ -215,7 +220,7 @@ const toggleAudioPlay = (): void => {
 onUnmounted(() => {
   stopRecording();
   // 释放所有音频 URL 资源（避免内存泄漏）
-  audioFiles.value.forEach(file => {
+  audioFiles.value.forEach((file) => {
     URL.revokeObjectURL(file.url);
   });
 });
