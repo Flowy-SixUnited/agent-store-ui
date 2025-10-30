@@ -6,5 +6,13 @@ export default {
     citationSources: "Citation Sources",
     copySuccess: "Copy Successful",
     copyFail: "Copy Failed. Please copy manually"
+  },
+  login: {
+    login: "Login",
+    logout: "Logout",
+    title: "Welcome to NANO Station",
+    emailPlaceholder: "Please enter your email address",
+    passwordPlaceholder: "Please enter your email password",
+    loginSuccess: "Login Successful"
   }
 };

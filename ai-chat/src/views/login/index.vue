@@ -19,11 +19,14 @@ import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 // import Lock from "~icons/ri/lock-fill";
 import User from "~icons/ri/user-3-fill";
+import Language from "@/layout/components/lay-home/components/language.vue";
 import { Lock } from "@element-plus/icons-vue";
 import { storageLocal } from "@pureadmin/utils";
 import { userKey } from "@/utils/auth";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 defineOptions({
-  name: "Login"
+  name: "Login",
 });
 
 const router = useRouter();
@@ -41,7 +44,7 @@ const { title } = useNav();
 const ruleForm = reactive({
   username: "admin",
   email: "666@qq.com",
-  password: "admin123"
+  password: "admin123",
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -50,7 +53,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
   const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
   storageLocal().setItem(userKey, mockUserInfo);
   router.push({ path: "/" });
-  message("登录成功", { type: "success" });
+  message(t("login.loginSuccess"), { type: "success" });
   disabled.value = false;
   // await formEl.validate(valid => {
   //   if (valid) {
@@ -82,7 +85,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
 };
 
 const immediateDebounce: any = debounce(
-  formRef => onLogin(formRef),
+  (formRef) => onLogin(formRef),
   1000,
   true
 );
@@ -99,9 +102,10 @@ useEventListener(document, "keydown", ({ code }) => {
 
 <template>
   <div class="container">
+    <Language class="lang" />
     <div class="card">
       <img class="w-10 h-10" src="@/assets/home/login/logo.png" alt="logo" />
-      <span class="title">欢迎使用NANO Station</span>
+      <span class="title">{{ $t("login.title") }}</span>
       <el-form
         ref="ruleFormRef"
         :model="ruleForm"
@@ -114,18 +118,21 @@ useEventListener(document, "keydown", ({ code }) => {
           :rules="[
             {
               type: 'email',
-              message: 'Please input correct email address',
-              trigger: ['blur', 'change']
-            }
+              message: $t('login.emailPlaceholder'),
+              trigger: ['blur', 'change'],
+            },
           ]"
         >
-          <el-input v-model="ruleForm.email" placeholder="请输入邮箱" />
+          <el-input
+            v-model="ruleForm.email"
+            :placeholder="$t('login.emailPlaceholder')"
+          />
         </el-form-item>
         <el-form-item prop="password">
           <el-input
             v-model="ruleForm.password"
             show-password
-            placeholder="密码"
+            :placeholder="$t('login.passwordPlaceholder')"
             type="password"
             :prefix-icon="Lock"
           />
@@ -135,7 +142,7 @@ useEventListener(document, "keydown", ({ code }) => {
             color="#2173FC"
             class="w-full login-btn"
             @click="onLogin(ruleFormRef)"
-            >登录</el-button
+            >{{ $t("login.login") }}</el-button
           >
         </el-form-item>
       </el-form>
@@ -156,9 +163,7 @@ useEventListener(document, "keydown", ({ code }) => {
 
   margin: 0;
   padding: 0;
-  font-family:
-    HarmonyOS Sans SC,
-    HarmonyOS Sans SC;
+  font-family: HarmonyOS Sans SC, HarmonyOS Sans SC;
   background-image: url("@/assets/home/login/bg.png");
   background-size: cover;
   background-repeat: no-repeat;
@@ -166,6 +171,12 @@ useEventListener(document, "keydown", ({ code }) => {
   background-attachment: fixed;
   display: flex;
   align-items: center;
+  position: relative;
+  .lang {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
   .card {
     margin: 0 auto;
     width: 400px;
