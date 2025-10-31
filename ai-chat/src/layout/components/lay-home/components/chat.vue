@@ -74,7 +74,7 @@ const copyContent = async () => {
   flex-direction: column;
   gap: 24px;
   .user {
-    background: #f0f0f0;
+    background: #eaf0f7;
     border: 1px solid #f2f0ef;
     padding: 12px;
     max-width: 200px;

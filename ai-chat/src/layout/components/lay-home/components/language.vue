@@ -61,3 +61,8 @@ const handleLangChange = (lang: string) => {
   locale.value = lang == "简体中文" ? "zh" : lang == "繁体中文" ? "ft" : "en";
 };
 </script>
+<style lang="scss" scoped>
+.el-dropdown {
+  color: #2e5de0;
+}
+</style>
