@@ -10,13 +10,14 @@
       </div>
       <div class="tools">
         <div class="tool-item">
-          <Document @convert="handleConvert" />
+          <Document @convert="handleConvert" @result="handleResult" />
         </div>
         <div class="tool-item">
           <Script
             :fileList="fileList"
             :fileUrl="fileUrl"
             :status="status"
+            :result="result"
             @update:status="handleStatusUpdate"
           />
         </div>
@@ -36,7 +37,7 @@ import Tips from "@/layout/components/lay-home/components/tips.vue";
 import type { UploadRawFile } from "element-plus";
 import { ref } from "vue";
 defineOptions({
-  name: "home",
+  name: "home"
 });
 const fileList = ref<UploadRawFile[]>([]);
 const fileUrl = ref("");
@@ -45,6 +46,11 @@ const handleConvert = (newFileList: UploadRawFile[], filePath: String) => {
   fileList.value = newFileList;
   fileUrl.value = filePath.toString();
   status.value = "loading";
+};
+const result = ref("");
+const handleResult = (res: string) => {
+  result.value = res;
+  status.value = "success";
 };
 const handleStatusUpdate = (newStatus: string) => {
   status.value = newStatus;

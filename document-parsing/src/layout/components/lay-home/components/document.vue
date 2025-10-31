@@ -72,7 +72,7 @@ const fileInfo = ref({
   fileSize: 0
 });
 const fileList = ref<UploadRawFile[]>([]);
-const emit = defineEmits(["convert"]);
+const emit = defineEmits(["convert", "result"]);
 // 上传错误信息
 const uploadError = ref("");
 
@@ -127,6 +127,7 @@ const handleConvert = () => {
     .generate(fileInfo.value.fileName)
     .then(res => {
       console.log(res);
+      emit("result", res.result);
     });
 };
 const removeFile = () => {

@@ -16,7 +16,7 @@ export const useDocumentStore = defineStore("document-parsing", {
           .then(data => {
             if (data?.status === "ok") {
               data.success = true;
-              data.filename = data?.filename;
+              data.result = data?.result;
             }
             resolve(data);
           })

@@ -6,6 +6,7 @@ export type DocumentResult = {
   filename: string;
   file: string;
   size: string;
+  result: string;
   data: {
     /** 文件名 */
     filename: string;

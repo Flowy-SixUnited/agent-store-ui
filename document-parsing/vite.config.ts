@@ -31,7 +31,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         //   rewrite: path => path.replace(/^\/api/, "")
         // }
         "/api": {
-          target: "http://192.168.31.101:8088",
+          target: "http://113.108.37.132:10007",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         }
