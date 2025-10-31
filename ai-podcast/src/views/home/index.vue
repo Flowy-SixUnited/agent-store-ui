@@ -69,18 +69,34 @@ import Figure from "@/layout/components/lay-home/components/figure.vue";
 import Result from "@/layout/components/lay-home/components/result.vue";
 import { usePodcastStoreHook } from "@/store/modules/podcast";
 import type { UploadRawFile } from "element-plus";
-import { ref, watch } from "vue";
+import { provide, ref, watch } from "vue";
 import { title } from "process";
 import { List } from "echarts";
 import { ElMessage } from "element-plus";
 defineOptions({
-  name: "home",
+  name: "home"
+});
+let globalAudio: HTMLAudioElement | null = null;
+
+// 提供全局音频控制方法（直接用字符串"audioController"作为键名）
+provide("audioController", {
+  // 停止当前播放的音频
+  stop: () => {
+    if (globalAudio) {
+      globalAudio.pause();
+      globalAudio.currentTime = 0;
+    }
+  },
+  // 设置当前播放的音频
+  set: (audio: HTMLAudioElement) => {
+    globalAudio = audio;
+  }
 });
 const type = ref("default");
 const fileList = ref<UploadRawFile[]>([]);
 const result = ref({
   fileName: "",
-  fileSize: "",
+  fileSize: ""
 });
 const status = ref("ready");
 const handleFileChange = (newFileList: UploadRawFile[]) => {
@@ -89,7 +105,7 @@ const handleFileChange = (newFileList: UploadRawFile[]) => {
 const audioInfo = ref({
   url: "",
   name: "",
-  size: 0,
+  size: 0
 });
 const rawData = ref({
   audio1: "audio/female/自然声.mp3",
@@ -98,12 +114,12 @@ const rawData = ref({
     "[S1]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
   text2:
     "[S2]哈喽～我是你的 AI播客小助手！超简单操作：先选我的性别，再点下方挑你喜欢的声线，配上你的对话脚本，就能智能生成专属对话啦～",
-  text_list: [],
+  text_list: []
 });
-const handleVocice1 = (audio) => {
+const handleVocice1 = audio => {
   rawData.value.audio1 = audio;
 };
-const handleVocice2 = (audio) => {
+const handleVocice2 = audio => {
   rawData.value.audio2 = audio;
 };
 const handleGenerate = () => {
@@ -117,7 +133,7 @@ const handleGenerate = () => {
   status.value = "loading";
   usePodcastStoreHook()
     .generate(rawData.value)
-    .then((res) => {
+    .then(res => {
       if (res.success) {
         console.log(res);
         audioInfo.value.url = res.filename;
@@ -167,7 +183,7 @@ watch(
   },
   {
     immediate: false,
-    deep: false,
+    deep: false
   }
 );
 </script>

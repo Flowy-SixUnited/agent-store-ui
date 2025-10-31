@@ -106,7 +106,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, provide, inject } from "vue";
 import girlImg from "@/assets/home/girl.png";
 import boyImg from "@/assets/home/boy.png";
 import girlVoiceActive from "@/assets/home/girl-voice-active.png";
@@ -123,6 +123,10 @@ const props = defineProps({
     default: ""
   }
 });
+const audioController = inject("audioController");
+if (!audioController) {
+  throw new Error("请在父组件中提供 audioController");
+}
 const girlVoices = ref([
   {
     name: "播音声",
@@ -191,21 +195,23 @@ let currentAudio: HTMLAudioElement | null = null;
 const handleVoiceClick = (voices: any[], position: number, index: number) => {
   const realIndex = position === 1 ? index + 2 : index;
   const selectedVoice = voices[realIndex];
-  voices.forEach((item, idx) => {
+  audioController.stop();
+  // 更新声线选中状态
+  voices.forEach(item => {
     item.active = false;
   });
-
   voices[realIndex].active = true;
-  if (currentAudio) {
-    currentAudio.pause(); // 暂停
-    currentAudio.currentTime = 0; // 重置播放进度到开头
-  }
+  // 播放当前选中的音频
   const audioUrl = `/${selectedVoice.audio}`;
-  currentAudio = new Audio(audioUrl);
-  currentAudio.play().catch(err => {
+  const newAudio = new Audio(audioUrl);
+  // 将新音频实例交给全局控制器管理
+  audioController.set(newAudio);
+  // 播放音频
+  newAudio.play().catch(err => {
     console.error(`音频播放失败：${selectedVoice.name}`, err);
   });
-  if (props.title == "1") {
+  //触发回调
+  if (props.title === "1") {
     emit("curVocice1", voices[realIndex].audio);
   } else {
     emit("curVocice2", voices[realIndex].audio);
