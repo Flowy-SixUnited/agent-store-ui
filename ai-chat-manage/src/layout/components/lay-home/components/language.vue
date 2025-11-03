@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-1 pr-6 pt-6">
+  <div class="flex items-center gap-1">
     <img class="w-4 h-4" src="@/assets/home/language.png" />
     <el-dropdown>
       <span class="el-dropdown-link flex items-center">
@@ -63,6 +63,6 @@ const handleLangChange = (lang: string) => {
 </script>
 <style lang="scss" scoped>
 .el-dropdown {
-  color: #2e5de0;
+  color: #505050;
 }
 </style>

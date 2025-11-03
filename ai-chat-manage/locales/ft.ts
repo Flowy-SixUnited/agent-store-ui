@@ -10,9 +10,51 @@ export default {
   login: {
     login: "登入",
     logout: "登出",
-    title: "歡迎使用NANO Station",
+    title: "NANO Station後台管理",
     emailPlaceholder: "請輸入信箱",
     passwordPlaceholder: "請輸入密碼",
     loginSuccess: "登入成功"
+  },
+  manage: {
+    title: "NIS後台管理",
+    user: {
+      title: "使用者管理",
+      searchPlaceholder: "使用者名稱/Agent code/信箱/手機號碼搜尋",
+      new: "新增",
+      edit: "編輯",
+      upload: "批次上傳",
+      username: "使用者名稱",
+      email: "信箱",
+      number: "手機號碼",
+      code: "Agent code",
+      password: "密碼",
+      role: "角色",
+      enable: "是否啟用",
+      save: "儲存",
+      cancel: "取消",
+      inputPlaceholder: "請輸入",
+      selectPlaceholder: "請選擇",
+      deleteTitle: "刪除使用者資訊確認",
+      deleteDesc: "您確定要刪除目前使用者資訊嗎？",
+      sure: "確定"
+    },
+    knowledge: {
+      title: "知識庫管理",
+      searchPlaceholder: "請輸入關鍵字",
+      upload: "上傳文件",
+      index: "序號",
+      filename: "檔案名稱",
+      fileType: "檔案類型",
+      businessType: "業務類型",
+      fileSize: "檔案大小",
+      status: "解析狀態",
+      uploadTime: "上傳時間",
+      operate: "操作",
+      tips1: "拖曳檔案至此",
+      tips2: "可批次上傳",
+      selectPlaceholder: "請選擇業務類型",
+      supportTips: "支援PDF格式",
+      selectFile: "選擇檔案"
+    }
   }
 };

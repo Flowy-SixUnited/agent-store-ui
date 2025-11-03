@@ -1,169 +1,144 @@
 <template>
-  <div class="wh-full flex">
-    <div class="flex flex-1 flex-col items-center bg-[#fcfcfc]">
-      <div class="bg-cover bg-center bg-no-repeat header">
-        <Language />
-      </div>
-      <div v-if="!isConversation" class="main">
-        <div class="title">{{ $t("chat.title") }}</div>
-        <Inputs
-          ref="inputsRef"
-          v-model:inputs="inputValue"
-          :autosize="autosize"
-          @send-message="sendMessage"
-        />
-      </div>
-      <div
-        v-else
-        class="flex flex-col justify-between h-screen position-relative chat"
-      >
-        <div class="chat-list">
-          <Chat
-            v-for="(item, index) in messageList"
-            :key="index"
-            :content="item.content"
-            :is-ai="item.isAi"
-            @open-origin="handleOpenOrigin"
-          />
+  <el-container class="layout-container-demo" style="height: 100vh">
+    <el-aside width="200px">
+      <el-scrollbar>
+        <div class="flex items-center justify-center py-4 gap-3">
+          <div class="side-logo" />
+          <div class="side-title">{{ $t("manage.title") }}</div>
         </div>
-        <div class="input-fixed">
-          <div
-            class="new-chat"
-            @click="((isConversation = false), (autosize.minRows = 3))"
-          >
-            <el-icon :size="12" color="#2173FC"><Plus /></el-icon>
-            {{ $t("chat.newChat") }}
-          </div>
-          <Inputs
-            ref="inputsRef"
-            v-model:inputs="inputValue"
-            :autosize="autosize"
-            @send-message="sendMessage"
-          />
-        </div>
-      </div>
-    </div>
-    <div v-if="sideVisible" class="bg-[#FFFFFF] w-70 p-4">
-      <div class="flex items-center justify-between">
-        <span class="color-[#202B2F]"
-          >{{ $t("chat.citationSources")
-          }}<span class="color-[#999999]">（2）</span></span
+        <el-menu
+          default-active="user"
+          v-model="currentMenu"
+          @select="handleMenuSelect"
         >
-        <el-icon
-          :size="16"
-          class="cursor-pointer"
-          @click="sideVisible = !sideVisible"
-          ><Close
-        /></el-icon>
-      </div>
-      <FileItem class="mt-4" />
-    </div>
-  </div>
+          <el-menu-item index="user" class="flex justify-between">
+            <div class="flex items-center gap-3">
+              <img
+                class="w-4 h-4"
+                :src="currentMenu == 'user' ? userSelected : userUnselect"
+              />
+              <span>{{ $t("manage.user.title") }}</span>
+            </div>
+            <el-icon :size="15"><ArrowRight /></el-icon>
+          </el-menu-item>
+          <el-menu-item index="knowledge" class="flex justify-between">
+            <div class="flex items-center gap-3">
+              <img
+                class="w-4 h-4"
+                :src="
+                  currentMenu == 'knowledge'
+                    ? knowledgeSelected
+                    : knowledgeUnselect
+                "
+              />
+              <span>{{ $t("manage.knowledge.title") }}</span>
+            </div>
+            <el-icon :size="15"><ArrowRight /></el-icon>
+          </el-menu-item>
+        </el-menu>
+      </el-scrollbar>
+    </el-aside>
+
+    <el-container>
+      <el-header class="flex items-center justify-between">
+        <span class="header-title">{{
+          currentMenu === "user"
+            ? $t("manage.user.title")
+            : $t("manage.knowledge.title")
+        }}</span>
+        <div class="toolbar">
+          <Language />
+        </div>
+      </el-header>
+
+      <el-main>
+        <User v-if="currentMenu === 'user'" />
+        <Knowledge v-if="currentMenu === 'knowledge'" />
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
-<script setup lang="ts">
+
+<script lang="ts" setup>
 import { ref } from "vue";
-import { Plus, Close } from "@element-plus/icons-vue";
-import Inputs from "@/layout/components/lay-home/components/inputs.vue";
-import Chat from "@/layout/components/lay-home/components/chat.vue";
-import FileItem from "@/layout/components/lay-home/components/file-item.vue";
+import { Menu as IconMenu, Message, ArrowRight } from "@element-plus/icons-vue";
 import Language from "@/layout/components/lay-home/components/language.vue";
+import User from "@/layout/components/lay-home/components/user.vue";
+import Knowledge from "@/layout/components/lay-home/components/knowledge.vue";
+import userUnselect from "@/assets/home/manage/user-unselected.png";
+import userSelected from "@/assets/home/manage/user-selected.png";
+import knowledgeUnselect from "@/assets/home/manage/knowledge-unselected.png";
+import knowledgeSelected from "@/assets/home/manage/knowledge-selected.png";
 import { useI18n } from "vue-i18n";
+import { ElMessage } from "element-plus";
 const { t } = useI18n();
-import { storageLocal } from "@pureadmin/utils";
-import { userKey, type DataInfo } from "@/utils/auth"; // DataInfo 是用户信息的类型定义
-
-// 2. 读取用户信息（指定类型，确保 TypeScript 类型安全）
-const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
-
-// 3. 使用用户信息（如打印、渲染到页面）
-console.log("当前登录用户：", userInfo);
-defineOptions({
-  name: "home"
-});
-
-const messageList = ref([]);
-const inputValue = ref("");
-const autosize = ref({ minRows: 3, maxRows: 12 });
-const isConversation = ref(false);
-// 发送消息
-const sendMessage = () => {
-  if (!inputValue.value.trim()) return; // 过滤空消息
-
-  messageList.value.push({
-    content: inputValue.value.trim(),
-    isAi: false // 标记为“用户消息”
-  });
-
-  inputValue.value = "";
-  autosize.value.minRows = 1.5;
-  isConversation.value = true;
+const item = {
+  date: "2016-05-02",
+  name: "Tom",
+  address: "No. 189, Grove St, Los Angeles"
 };
-const sideVisible = ref(false);
-const handleOpenOrigin = (visible: boolean) => {
-  sideVisible.value = visible;
+const currentMenu = ref("user");
+const tableData = ref(Array.from({ length: 20 }).fill(item));
+const handleMenuSelect = (key: string) => {
+  currentMenu.value = key;
 };
 </script>
+
 <style scoped lang="scss">
-.header {
-  width: 100%;
-  height: 130px;
-  background-image: url("@/assets/home/bg.png");
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  color: #2e5de0;
-}
-.main {
-  height: calc(100vh - 130px);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  .title {
-    padding-top: 42px;
-    font-family: HarmonyOS Sans SC;
+.layout-container-demo .el-header {
+  position: relative;
+  background-color: white;
+  color: var(--el-text-color-primary);
+  font-family:
+    HarmonyOS Sans SC,
+    HarmonyOS Sans SC;
+  .header-title {
     font-weight: 700;
-    font-size: 32px;
-    color: #1f2937;
-    line-height: 32px;
-    text-align: center;
-    margin-bottom: 40px;
-  }
-}
-.chat {
-  height: calc(100vh - 80px);
-  padding-bottom: 80px;
-  margin-top: -50px;
-  .chat-list {
-    gap: 12px;
-    display: flex;
-    flex-direction: column;
-    max-height: 550px;
-    overflow-y: auto;
-  }
-}
-.input-fixed {
-  position: absolute;
-  bottom: 0;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  .new-chat {
-    width: 104px;
-    background: #ffffff;
-    box-shadow: 0px 4px 10px 0px rgba(83, 100, 131, 0.22);
-    border-radius: 100px;
-    padding: 5px 8px;
-    font-family: HarmonyOS Sans SC;
-    font-weight: 400;
     font-size: 14px;
-    color: #2173fc;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 16px;
-    cursor: pointer;
+    color: #202a2f;
+    line-height: 15px;
   }
+}
+.layout-container-demo .el-aside {
+  color: var(--el-text-color-primary);
+  background: white;
+  border-right: 1px solid #eef2f7;
+  .side-logo {
+    width: 24px;
+    height: 24px;
+    background: #d8d8d8;
+  }
+  .side-title {
+    font-family:
+      HarmonyOS Sans SC,
+      HarmonyOS Sans SC;
+    font-weight: 900;
+    font-size: 16px;
+    color: #202a2f;
+    line-height: 24px;
+  }
+}
+.layout-container-demo .el-menu {
+  border-right: none;
+  .el-menu-item.is-active {
+    background-color: #f8f9fb;
+    color: #202a2f;
+  }
+}
+.layout-container-demo .el-main {
+  padding: 24px;
+  background: #f2f3f4;
+}
+.layout-container-demo .toolbar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  right: 20px;
+}
+.el-table--fit {
+  box-shadow: 0px 2px 12px 0px rgba(188, 188, 188, 0.3);
+  border-radius: 8px 8px 8px 8px;
+  border: 1px solid #ffffff;
 }
 </style>
