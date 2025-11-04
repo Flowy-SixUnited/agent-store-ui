@@ -46,12 +46,20 @@ const props = defineProps({
   content: {
     type: String,
     required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  isStreaming: {
+    type: Boolean,
+    default: false
   }
 });
 const emit = defineEmits(["openOrigin"]);
-const message = ref(
-  "您好！我们的笔记本产品线非常丰富，主要包括以下几个系列： 39系OLED双SSD笔记本 - 这类笔记本配备了高质量的OLED显示屏和双SSD存储，适合需要高性能和出色显示效果的用户。 轻薄系列 - 专为追求便携性和时尚设计的用户设计，轻便且性能不俗。 游戏系列 - 针对游戏爱好者，提供强大的图形处理能力和高刷新率屏幕。 商务系列 - 强调安全性和耐用性，适合商务人士使用。 二合一笔记本 - 结合笔记本和平板的功能，提供灵活的使用方式。 每个系列都有其独特的特点和适用场景，您可以根据自己的需求选择合适的系列。如果您对某个特定系列感兴趣，或者需要更详细的规格信息，请随时告诉我！"
-);
+// const message = ref(
+//   "您好！我们的笔记本产品线非常丰富，主要包括以下几个系列： 39系OLED双SSD笔记本 - 这类笔记本配备了高质量的OLED显示屏和双SSD存储，适合需要高性能和出色显示效果的用户。 轻薄系列 - 专为追求便携性和时尚设计的用户设计，轻便且性能不俗。 游戏系列 - 针对游戏爱好者，提供强大的图形处理能力和高刷新率屏幕。 商务系列 - 强调安全性和耐用性，适合商务人士使用。 二合一笔记本 - 结合笔记本和平板的功能，提供灵活的使用方式。 每个系列都有其独特的特点和适用场景，您可以根据自己的需求选择合适的系列。如果您对某个特定系列感兴趣，或者需要更详细的规格信息，请随时告诉我！"
+// );
 
 const openOrigin = () => {
   emit("openOrigin", true);
@@ -59,7 +67,7 @@ const openOrigin = () => {
 const copyContent = async () => {
   try {
     // 复制 message 的内容到剪贴板
-    await navigator.clipboard.writeText(message.value);
+    await navigator.clipboard.writeText(props.message);
     ElMessage.success(t("chat.copySuccess"));
   } catch (err) {
     console.error("复制失败:", err);

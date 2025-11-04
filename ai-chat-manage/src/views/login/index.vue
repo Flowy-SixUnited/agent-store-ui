@@ -15,10 +15,7 @@ import { bg, avatar, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
-import dayIcon from "@/assets/svg/day.svg?component";
-import darkIcon from "@/assets/svg/dark.svg?component";
-// import Lock from "~icons/ri/lock-fill";
-import User from "~icons/ri/user-3-fill";
+import { useManageStoreHook } from "@/store/modules/manage";
 import Language from "@/layout/components/lay-home/components/language.vue";
 import { Lock } from "@element-plus/icons-vue";
 import { storageLocal } from "@pureadmin/utils";
@@ -26,7 +23,7 @@ import { userKey } from "@/utils/auth";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 defineOptions({
-  name: "Login",
+  name: "Login"
 });
 
 const router = useRouter();
@@ -43,18 +40,28 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  email: "666@qq.com",
-  password: "admin123",
+  email: "123@test.com",
+  password: "admin123"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   disabled.value = true;
-  const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
-  storageLocal().setItem(userKey, mockUserInfo);
-  router.push({ path: "/" });
-  message(t("login.loginSuccess"), { type: "success" });
-  disabled.value = false;
+  const data = {
+    email: ruleForm.email,
+    passwd: ruleForm.password
+  };
+  useManageStoreHook()
+    .login(data)
+    .then(res => {
+      console.log(res);
+      const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
+      storageLocal().setItem(userKey, mockUserInfo);
+      storageLocal().setItem("token", res.data.token);
+      router.push({ path: "/" });
+      message(t("login.loginSuccess"), { type: "success" });
+      disabled.value = false;
+    });
   // await formEl.validate(valid => {
   //   if (valid) {
   //     loading.value = true;

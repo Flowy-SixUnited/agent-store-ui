@@ -29,6 +29,11 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           target: "http://192.168.31.101:8080",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
+        },
+        "/coze": {
+          target: "http://192.168.31.5:8000",
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/coze/, "")
         }
       },
       // 预热文件以提前转换和缓存结果，降低启动期间的初始页面加载时长并防止转换瀑布

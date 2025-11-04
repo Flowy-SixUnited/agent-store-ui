@@ -17,13 +17,12 @@
         </el-button>
       </div>
     </div>
-    <div class="table">
-      <el-table
-        :data="paginatedList"
-        style="width: 100%"
-        :row-hover="true"
-        :default-sort="{ prop: 'uploadTime', order: 'descending' }"
-      >
+    <div v-if="paginatedList.length == 0" class="empty-class">
+      <img class="w-35 h-35" src="@/assets/home/manage/empty.png" />
+      <span>暂无数据哦～点击右上角上传文档吧</span>
+    </div>
+    <div v-else class="table">
+      <el-table :data="paginatedList" style="width: 100%" :row-hover="true">
         <el-table-column
           prop="id"
           :label="$t('manage.knowledge.index')"
@@ -92,12 +91,14 @@
               <img
                 class="w-4 h-4 cursor-pointer"
                 src="@/assets/home/manage/view.png"
-                @click="previewDialogVisible = true"
+                @click="
+                  ((previewDialogVisible = true),
+                  (curFilename = scope.row.filename))
+                "
               />
               <img
                 class="w-4 h-4 cursor-pointer"
                 src="@/assets/home/manage/download.png"
-                @click="handleEdit(scope.row)"
               />
               <img
                 class="w-4 h-4 cursor-pointer"
@@ -117,31 +118,20 @@
         @size-change="handlePageSizeChange"
       />
     </div>
-    <el-drawer v-model="drawer" :direction="direction" size="354">
-      <template #header="{ titleId, titleClass }">
-        <h4 :id="titleId" :class="titleClass">
-          {{
-            curType == "new" ? $t("manage.user.new") : $t("manage.user.edit")
-          }}
-        </h4>
-      </template>
-      <Drawer :form="curForm" />
-    </el-drawer>
     <el-dialog
       v-model="deleteDialogVisible"
       title="Warning"
-      width="500"
+      width="360"
       align-center
+      class="delete-class"
     >
-      <template #header="{ titleId, titleClass }">
-        <div class="my-header">
-          <div :id="titleId" :class="titleClass">
-            <el-icon color="#FAAD14"><WarningFilled /></el-icon>
-            删除用户信息确认
-          </div>
+      <template #header>
+        <div class="title">
+          <el-icon color="#FAAD14"><WarningFilled /></el-icon>
+          <span>删除文档信息确认</span>
         </div>
       </template>
-      <span>您确定要删除当前用户信息吗？</span>
+      <span>您确定要删除当前文档信息吗？</span>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="deleteDialogVisible = false">{{
@@ -153,7 +143,14 @@
         </div>
       </template>
     </el-dialog>
-    <el-dialog v-model="previewDialogVisible" title="Tips" width="800">
+    <el-dialog v-model="previewDialogVisible" width="800" class="preview-class">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <img class="w-5 h-5" :src="pdfIcon" />
+          <span class="title">{{ curFilename }}</span>
+          <img class="w-4 h-4" src="@/assets/home/manage/download-blue.png" />
+        </div>
+      </template>
       <Preview />
     </el-dialog>
     <el-dialog
@@ -176,13 +173,34 @@
           :value="item.value"
         />
       </el-select>
-      <el-upload
+      <div
+        class="file-list h-50 bg-[#F9FCFF] mt-3 flex flex-col items-center justify-center"
+      >
+        <!--  flex items-center justify-center -->
+        <!-- <el-progress :percentage="50" style="max-width: 320px" /> -->
+        <div class="tips">
+          请耐心等候，文件上传中（共50份），<span @click="innerVisible = true"
+            >点击查看</span
+          >
+        </div>
+      </div>
+      <el-dialog
+        v-model="innerVisible"
+        width="500"
+        title="Inner Dialog"
+        append-to-body
+      >
+        <span>This is the inner Dialog</span>
+      </el-dialog>
+      <!-- <el-upload
         class="upload-demo mt-3"
         drag
         action="#"
         :auto-upload="false"
         :accept="'.pdf'"
         :show-file-list="false"
+        :limit="10"
+        multiple
         :on-change="fileUpload"
       >
         <img class="icon" src="@/assets/home/upload.png" alt="icon" />
@@ -196,7 +214,7 @@
           <div class="button">{{ $t("manage.knowledge.selectFile") }}</div>
         </div>
         <div class="tips">{{ $t("manage.knowledge.supportTips") }}</div>
-      </el-upload>
+      </el-upload> -->
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="uploadDialogVisible = false">{{
@@ -225,6 +243,8 @@ import { tr } from "element-plus/es/locale/index.mjs";
 const deleteDialogVisible = ref(false);
 const previewDialogVisible = ref(false);
 const uploadDialogVisible = ref(false);
+const innerVisible = ref(false);
+const curFilename = ref("");
 const direction = ref<DrawerProps["direction"]>();
 const { t } = useI18n();
 const input = ref("");
@@ -238,6 +258,7 @@ const businessType = ref("");
 //   // const endIndex = startIndex + pageSize.value
 //   // return filteredList.value.slice(startIndex, endIndex)
 // })
+// const paginatedList = [];
 const paginatedList = ref([
   {
     id: 1,
@@ -398,8 +419,42 @@ const fileUpload = (uploadFile, uploadFiles) => {
     HarmonyOS Sans SC,
     HarmonyOS Sans SC;
 }
+// .main {
+//   height: 100%;
+// }
 .table {
   width: 100%;
+}
+.empty-class {
+  height: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  span {
+    font-weight: 400;
+    font-size: 13px;
+    color: #afafaf;
+  }
+}
+.preview-class {
+  .title {
+    font-weight: 400;
+    font-size: 13px;
+    color: #2173fc;
+  }
+}
+.file-list {
+  .tips {
+    font-weight: 400;
+    font-size: 12px;
+    color: #97a0c3;
+    span {
+      color: #2173fc;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
 .upload-class {
   .title {
@@ -472,5 +527,39 @@ const fileUpload = (uploadFile, uploadFiles) => {
   font-weight: 400;
   font-size: 14px;
   color: #80868f;
+}
+
+:deep(.el-tag.el-tag--warning) {
+  --el-tag-text-color: #fd7310;
+  --el-tag-bg-color: #ffefd3;
+  --el-tag-border-color: #ffefd3;
+}
+:deep(.el-tag.el-tag--success) {
+  --el-tag-text-color: #18c20f;
+  --el-tag-bg-color: #e9ffec;
+  --el-tag-border-color: #e9ffec;
+}
+:deep(.el-tag.el-tag--primary) {
+  --el-tag-text-color: #104ffd;
+  --el-tag-bg-color: #d3ddff;
+  --el-tag-border-color: #d3ddff;
+}
+:deep(.el-tag.el-tag--danger) {
+  --el-tag-text-color: #fd1010;
+  --el-tag-bg-color: #ffe1d3;
+  --el-tag-border-color: #ffe1d3;
+}
+.delete-class {
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.85);
+  }
+}
+.dialog-footer {
+  text-align: center;
 }
 </style>

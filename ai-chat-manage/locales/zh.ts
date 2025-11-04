@@ -36,7 +36,9 @@ export default {
       selectPlaceholder: "请选择",
       deleteTitle: "删除用户信息确定",
       deleteDesc: "您确定要删除当前用户信息吗？",
-      sure: "确定"
+      sure: "确定",
+      deleteSuccess: "删除成功",
+      uploadSuccess: "上传成功"
     },
     knowledge: {
       title: "知识库管理",

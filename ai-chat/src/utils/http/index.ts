@@ -22,6 +22,8 @@ const defaultConfig: AxiosRequestConfig = {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json",
     "X-Requested-With": "XMLHttpRequest"
+    // Authorization:
+    //   "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe"
   },
   // 数组格式参数序列化（https://github.com/axios/axios/issues/5142）
   paramsSerializer: {
@@ -52,6 +54,8 @@ class PureHttp {
     return new Promise(resolve => {
       PureHttp.requests.push((token: string) => {
         config.headers["Authorization"] = formatToken(token);
+        config.headers["Authorization"] =
+          "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
         resolve(config);
       });
     });
@@ -90,6 +94,8 @@ class PureHttp {
                       .then(res => {
                         const token = res.data.accessToken;
                         config.headers["Authorization"] = formatToken(token);
+                        config.headers["Authorization"] =
+                          "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
                       })
@@ -102,6 +108,8 @@ class PureHttp {
                   config.headers["Authorization"] = formatToken(
                     data.accessToken
                   );
+                  config.headers["Authorization"] =
+                    "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
                   resolve(config);
                 }
               } else {

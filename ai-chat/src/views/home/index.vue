@@ -22,7 +22,9 @@
             v-for="(item, index) in messageList"
             :key="index"
             :content="item.content"
+            :message="item.message"
             :is-ai="item.isAi"
+            :is-streaming="item.isStreaming"
             @open-origin="handleOpenOrigin"
           />
         </div>
@@ -61,7 +63,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { Plus, Close } from "@element-plus/icons-vue";
 import Inputs from "@/layout/components/lay-home/components/inputs.vue";
 import Chat from "@/layout/components/lay-home/components/chat.vue";
@@ -71,11 +73,12 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 import { storageLocal } from "@pureadmin/utils";
 import { userKey, type DataInfo } from "@/utils/auth"; // DataInfo 是用户信息的类型定义
-
-// 2. 读取用户信息（指定类型，确保 TypeScript 类型安全）
+import { useChatStoreHook } from "@/store/modules/chat";
+// import { getChat } from "@/api/chat";
+// 读取用户信息（指定类型，确保 TypeScript 类型安全）
 const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
 
-// 3. 使用用户信息（如打印、渲染到页面）
+// 使用用户信息（如打印、渲染到页面）
 console.log("当前登录用户：", userInfo);
 defineOptions({
   name: "home"
@@ -85,18 +88,71 @@ const messageList = ref([]);
 const inputValue = ref("");
 const autosize = ref({ minRows: 3, maxRows: 12 });
 const isConversation = ref(false);
+const isLoading = ref(false);
+const currentAiMessageIndex = ref(-1);
 // 发送消息
-const sendMessage = () => {
+const sendMessage = async () => {
   if (!inputValue.value.trim()) return; // 过滤空消息
-
+  const userMessage = inputValue.value.trim();
+  // 添加用户消息
   messageList.value.push({
-    content: inputValue.value.trim(),
-    isAi: false // 标记为“用户消息”
+    content: userMessage,
+    message: "",
+    isAi: false,
+    isStreaming: false
   });
 
+  // // 添加初始的AI消息（空内容）
+  // messageList.value.push({
+  //   content: "",
+  //   message: "",
+  //   isAi: true,
+  //   isStreaming: true
+  // });
+
+  currentAiMessageIndex.value = messageList.value.length - 1;
   inputValue.value = "";
   autosize.value.minRows = 1.5;
   isConversation.value = true;
+  // isLoading.value = true;
+  try {
+    await useChatStoreHook().goChat(userMessage, content => {
+      console.log("content", content);
+      // 流式更新AI消息内容
+      if (currentAiMessageIndex.value !== -1) {
+        console.log("messageList.value", messageList.value);
+        const aiMessage = messageList.value[currentAiMessageIndex.value];
+        aiMessage.message += content;
+        // 滚动到底部
+        nextTick(() => {
+          scrollToBottom();
+        });
+      }
+    });
+    console.log("messageList.value", messageList.value);
+    // 流式输出完成，更新状态
+    if (currentAiMessageIndex.value !== -1) {
+      messageList.value[currentAiMessageIndex.value].isStreaming = false;
+    }
+  } catch (error) {
+    console.error("发送消息失败:", error);
+    // 错误处理
+    if (currentAiMessageIndex.value !== -1) {
+      messageList.value[currentAiMessageIndex.value].message =
+        "抱歉，发生了错误，请重试。";
+      messageList.value[currentAiMessageIndex.value].isStreaming = false;
+    }
+  } finally {
+    isLoading.value = false;
+    currentAiMessageIndex.value = -1;
+  }
+};
+// 滚动到底部
+const scrollToBottom = () => {
+  const chatList = document.querySelector(".chat-list");
+  if (chatList) {
+    chatList.scrollTop = chatList.scrollHeight;
+  }
 };
 const sideVisible = ref(false);
 const handleOpenOrigin = (visible: boolean) => {

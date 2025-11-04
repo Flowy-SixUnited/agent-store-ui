@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { Menu as IconMenu, Message, ArrowRight } from "@element-plus/icons-vue";
 import Language from "@/layout/components/lay-home/components/language.vue";
 import User from "@/layout/components/lay-home/components/user.vue";
@@ -120,6 +120,9 @@ const handleMenuSelect = (key: string) => {
 }
 .layout-container-demo .el-menu {
   border-right: none;
+  font-family:
+    HarmonyOS Sans SC,
+    HarmonyOS Sans SC;
   .el-menu-item.is-active {
     background-color: #f8f9fb;
     color: #202a2f;
