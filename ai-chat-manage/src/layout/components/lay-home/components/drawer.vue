@@ -46,8 +46,8 @@
         :v-model="userForm.role == '1' ? '用户' : '管理员'"
         :placeholder="$t('manage.user.selectPlaceholder')"
       >
-        <el-option label="管理员" value="2" />
-        <el-option label="用户" value="1" />
+        <el-option :label="$t('manage.user.user')" value="2" />
+        <el-option :label="$t('manage.user.manager')" value="1" />
       </el-select>
     </el-form-item>
     <el-form-item :label="$t('manage.user.enable')">

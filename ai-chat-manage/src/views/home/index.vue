@@ -10,18 +10,22 @@
           default-active="user"
           v-model="currentMenu"
           @select="handleMenuSelect"
+          class="menu-container"
         >
-          <el-menu-item index="user" class="flex justify-between">
+          <el-menu-item index="user" class="flex justify-between menu-item">
             <div class="flex items-center gap-3">
               <img
                 class="w-4 h-4"
                 :src="currentMenu == 'user' ? userSelected : userUnselect"
               />
-              <span>{{ $t("manage.user.title") }}</span>
+              <div class="menu-text">{{ $t("manage.user.title") }}</div>
             </div>
             <el-icon :size="15"><ArrowRight /></el-icon>
           </el-menu-item>
-          <el-menu-item index="knowledge" class="flex justify-between">
+          <el-menu-item
+            index="knowledge"
+            class="flex justify-between menu-item"
+          >
             <div class="flex items-center gap-3">
               <img
                 class="w-4 h-4"
@@ -31,7 +35,7 @@
                     : knowledgeUnselect
                 "
               />
-              <span>{{ $t("manage.knowledge.title") }}</span>
+              <div class="menu-text">{{ $t("manage.knowledge.title") }}</div>
             </div>
             <el-icon :size="15"><ArrowRight /></el-icon>
           </el-menu-item>
@@ -103,6 +107,7 @@ const handleMenuSelect = (key: string) => {
   color: var(--el-text-color-primary);
   background: white;
   border-right: 1px solid #eef2f7;
+  width: 300px;
   .side-logo {
     width: 24px;
     height: 24px;
@@ -143,5 +148,18 @@ const handleMenuSelect = (key: string) => {
   box-shadow: 0px 2px 12px 0px rgba(188, 188, 188, 0.3);
   border-radius: 8px 8px 8px 8px;
   border: 1px solid #ffffff;
+}
+:deep(.menu-container) {
+  width: 300px;
+  white-space: normal;
+  .menu-item {
+    word-wrap: break-word;
+    word-break: break-all;
+    .menu-text {
+      word-wrap: break-word;
+      word-break: break-all;
+      width: 56px;
+    }
+  }
 }
 </style>

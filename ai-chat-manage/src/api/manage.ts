@@ -39,11 +39,11 @@ export const getUpload = (data: FormData) => {
 export const getUserList = (
   page: number,
   pageSize: number,
-  keywork: string
+  keyword: string
 ) => {
   return http.request<ManageResult>(
     "get",
-    `/api/v1/admin/user/list?page=${page}&page_size=${pageSize}&keywork=${keywork}`
+    `/api/v1/admin/user/list?page=${page}&page_size=${pageSize}&keyword=${keyword}`
   );
 };
 
@@ -69,4 +69,44 @@ export const uploadUser = (data?: object) => {
       "Content-Type": "multipart/form-data" // 配置上传类型
     }
   });
+};
+export const getBizTypeList = () => {
+  return http.request<ManageResult>("get", "/api/v1/admin/knowledge/biz_type");
+};
+export const uploadKnowledge = (data?: object) => {
+  return http.request<ManageResult>(
+    "post",
+    "/api/v1/admin/knowledge/upload_knowledge_file",
+    {
+      data,
+      headers: {
+        "Content-Type": "multipart/form-data" // 配置上传类型
+      }
+    }
+  );
+};
+export const getFileList = (
+  page: number,
+  pageSize: number,
+  keyword: string
+) => {
+  return http.request<ManageResult>(
+    "get",
+    `/api/v1/admin/knowledge/knowledge_file/list?page=${page}&page_size=${pageSize}&keyword=${keyword}`
+  );
+};
+export const deleteKnowledge = (data?: object) => {
+  return http.request<ManageResult>(
+    "post",
+    "/api/v1/admin/knowledge/knowledge_file/remove",
+    {
+      data
+    }
+  );
+};
+export const downloadKnowledge = (fileId: string) => {
+  return http.request<ManageResult>(
+    "get",
+    `/download/v1/files/retrieve?file_id=${fileId}`
+  );
 };

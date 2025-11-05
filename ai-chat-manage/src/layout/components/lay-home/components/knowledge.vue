@@ -6,6 +6,7 @@
         style="width: 260px"
         :placeholder="$t('manage.knowledge.searchPlaceholder')"
         :suffix-icon="Search"
+        @change="handleSearch"
       />
       <div>
         <el-button
@@ -17,12 +18,12 @@
         </el-button>
       </div>
     </div>
-    <div v-if="paginatedList.length == 0" class="empty-class">
+    <div v-if="knowledgeFileList.length == 0" class="empty-class">
       <img class="w-35 h-35" src="@/assets/home/manage/empty.png" />
       <span>暂无数据哦～点击右上角上传文档吧</span>
     </div>
     <div v-else class="table">
-      <el-table :data="paginatedList" style="width: 100%" :row-hover="true">
+      <el-table :data="knowledgeFileList" style="width: 100%" :row-hover="true">
         <el-table-column
           prop="id"
           :label="$t('manage.knowledge.index')"
@@ -36,7 +37,7 @@
         >
           <template #default="scope">
             <div class="flex items-center gap-2">
-              <img class="w-7 h-7" :src="pdfIcon" />
+              <img class="w-7 h-7" :src="getFileIcon(scope.row.filename)" />
               <span>{{ scope.row.filename }}</span>
             </div>
           </template>
@@ -46,18 +47,24 @@
           :label="$t('manage.knowledge.fileType')"
           align="left"
           width="180"
-        />
+        >
+          <template #default="scope">
+            <span>{{ getFileType(scope.row.filename) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
-          prop="businessType"
+          prop="biz_type"
           :label="$t('manage.knowledge.businessType')"
           align="left"
         >
           <template #default="scope">
-            <el-tag type="warning">{{ scope.row.businessType }}</el-tag>
+            <el-tag type="warning">{{
+              getBusinessTypeName(scope.row.biz_type)
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
-          prop="fileSize"
+          prop="file_size"
           :label="$t('manage.knowledge.fileSize')"
           align="left"
         />
@@ -66,22 +73,32 @@
           :label="$t('manage.knowledge.uploadTime')"
           sortable
           align="left"
-        />
+        >
+          <template #default="scope">
+            {{ formatDateTime(scope.row.created_at) }}
+          </template>
+        </el-table-column>
         <el-table-column
-          prop="status"
+          prop="parse_status"
           :label="$t('manage.knowledge.status')"
           align="center"
         >
           <template #default="scope">
             <el-tag
               :type="
-                scope.row.status == '解析完成'
+                scope.row.parse_status == '2'
                   ? 'success'
-                  : scope.row.status == '解析中'
+                  : scope.row.parse_status == '1'
                     ? 'primary'
                     : 'danger'
               "
-              >{{ scope.row.status }}</el-tag
+              >{{
+                scope.row.parse_status == "1"
+                  ? $t("manage.knowledge.parsing")
+                  : scope.row.parse_status == "2"
+                    ? $t("manage.knowledge.parsingCompleted")
+                    : $t("manage.knowledge.parsingFail")
+              }}</el-tag
             >
           </template>
         </el-table-column>
@@ -91,14 +108,12 @@
               <img
                 class="w-4 h-4 cursor-pointer"
                 src="@/assets/home/manage/view.png"
-                @click="
-                  ((previewDialogVisible = true),
-                  (curFilename = scope.row.filename))
-                "
+                @click="handlePreview(scope.row)"
               />
               <img
                 class="w-4 h-4 cursor-pointer"
                 src="@/assets/home/manage/download.png"
+                @click="handleDownload(scope.row)"
               />
               <img
                 class="w-4 h-4 cursor-pointer"
@@ -112,7 +127,7 @@
       <Pagination
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="paginatedList.length"
+        :total="knowledgeFileList.length"
         :background="true"
         @page-change="handlePageChange"
         @size-change="handlePageSizeChange"
@@ -137,7 +152,7 @@
           <el-button @click="deleteDialogVisible = false">{{
             $t("manage.user.cancel")
           }}</el-button>
-          <el-button type="primary" @click="deleteDialogVisible = false">
+          <el-button type="primary" @click="deleteKnowledge">
             {{ $t("manage.user.sure") }}
           </el-button>
         </div>
@@ -148,10 +163,14 @@
         <div class="flex items-center gap-2">
           <img class="w-5 h-5" :src="pdfIcon" />
           <span class="title">{{ curFilename }}</span>
-          <img class="w-4 h-4" src="@/assets/home/manage/download-blue.png" />
+          <img
+            class="w-4 h-4 cursor-pointer"
+            src="@/assets/home/manage/download-blue.png"
+            @click="downloadByUrl"
+          />
         </div>
       </template>
-      <Preview />
+      <Preview :file-url="previewFileUrl" />
     </el-dialog>
     <el-dialog
       v-model="uploadDialogVisible"
@@ -167,32 +186,45 @@
         :placeholder="$t('manage.knowledge.selectPlaceholder')"
       >
         <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
+          v-for="item in typeOptions"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id"
         />
       </el-select>
       <div
-        class="file-list h-50 bg-[#F9FCFF] mt-3 flex flex-col items-center justify-center"
+        v-if="fileList.length > 0 && isDetail"
+        class="file-list h-50 bg-[#F9FCFF] mt-3 py-3 flex flex-col items-center justify-center"
       >
-        <!--  flex items-center justify-center -->
-        <!-- <el-progress :percentage="50" style="max-width: 320px" /> -->
+        <el-icon class="close-icon" @click="isDetail = !isDetail"
+          ><Close
+        /></el-icon>
+        <el-progress
+          :percentage="totalPercentage"
+          :status="totalStatus"
+          :show-text="true"
+        />
         <div class="tips">
-          请耐心等候，文件上传中（共50份），<span @click="innerVisible = true"
-            >点击查看</span
-          >
+          <template v-if="totalStatus === ''">
+            {{ $t("manage.knowledge.waitingTips") }}（{{
+              $t("manage.knowledge.total")
+            }}
+            {{ fileList.length }} {{ $t("manage.knowledge.count") }}），
+          </template>
+          <template v-else-if="totalStatus === 'success'">
+            {{ $t("manage.knowledge.successTips") }}（{{
+              $t("manage.knowledge.total")
+            }}
+            {{ fileList.length }} {{ $t("manage.knowledge.count") }}），
+          </template>
+          <template v-else> {{ $t("manage.knowledge.failTips") }}， </template>
+          <span @click.stop="innerVisible = true">{{
+            $t("manage.knowledge.clickView")
+          }}</span>
         </div>
       </div>
-      <el-dialog
-        v-model="innerVisible"
-        width="500"
-        title="Inner Dialog"
-        append-to-body
-      >
-        <span>This is the inner Dialog</span>
-      </el-dialog>
-      <!-- <el-upload
+      <el-upload
+        v-else
         class="upload-demo mt-3"
         drag
         action="#"
@@ -214,13 +246,45 @@
           <div class="button">{{ $t("manage.knowledge.selectFile") }}</div>
         </div>
         <div class="tips">{{ $t("manage.knowledge.supportTips") }}</div>
-      </el-upload> -->
+      </el-upload>
+      <el-dialog
+        v-model="innerVisible"
+        width="400"
+        append-to-body
+        class="upload-class"
+      >
+        <template #header>
+          <div class="title">{{ $t("manage.knowledge.uploadDetail") }}</div>
+        </template>
+        <div v-for="(item, index) in fileList" :key="index" class="mb-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-0.5">
+              <img class="w-4 h-4" src="@/assets/home/file/link.png" />
+              <span>{{ item.name }}</span>
+            </div>
+            <el-icon class="cursor-pointer"><Close /></el-icon>
+          </div>
+          <el-progress
+            :percentage="item.percentage"
+            :status="
+              item.status === 'fail'
+                ? 'exception'
+                : item.status === 'success'
+                  ? 'success'
+                  : ''
+            "
+            :show-text="item.status !== 'success'"
+            :stroke-width="2"
+            style="width: 100%"
+          />
+        </div>
+      </el-dialog>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="uploadDialogVisible = false">{{
             $t("manage.user.cancel")
           }}</el-button>
-          <el-button type="primary" @click="uploadDialogVisible = false">
+          <el-button type="primary" @click="onSubmit">
             {{ $t("manage.user.sure") }}
           </el-button>
         </div>
@@ -230,141 +294,46 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import { debounce } from "lodash-es";
-import Pagination from "./Pagination.vue";
+import { computed, onMounted, ref } from "vue";
+import { debounce, replace } from "lodash-es";
+import Pagination from "./pagination.vue";
 import Drawer from "./drawer.vue";
 import { useI18n } from "vue-i18n";
 import { ElMessage, type DrawerProps } from "element-plus";
-import { Search, WarningFilled } from "@element-plus/icons-vue";
+import { Search, WarningFilled, Close, Message } from "@element-plus/icons-vue";
 import pdfIcon from "@/assets/home/file/pdf.png";
+import docxIcon from "@/assets/home/file/docx.png";
+import pngIcon from "@/assets/home/file/png.png";
+import xlsxIcon from "@/assets/home/file/xlsx.png";
 import Preview from "./preview.vue";
+import { useManageStoreHook } from "@/store/modules/manage";
+import axios from "axios";
 import { tr } from "element-plus/es/locale/index.mjs";
+import { it } from "node:test";
+const iconMap = ref({
+  ".pdf": pdfIcon,
+  ".docx": docxIcon,
+  ".png": pngIcon,
+  ".xlsx": xlsxIcon,
+  ".jpg": pngIcon,
+  ".jpeg": pngIcon,
+  ".txt": docxIcon
+});
+
 const deleteDialogVisible = ref(false);
 const previewDialogVisible = ref(false);
 const uploadDialogVisible = ref(false);
 const innerVisible = ref(false);
 const curFilename = ref("");
-const direction = ref<DrawerProps["direction"]>();
+const previewFileUrl = ref("");
 const { t } = useI18n();
 const input = ref("");
 const currentPage = ref(1);
-const pageSize = ref(20); // 默认20
+const pageSize = ref(10); // 默认20
 const drawer = ref(false);
 const businessType = ref("");
-// 分页后的列表
-// const paginatedList = computed<any[]>(() => {
-//   // const startIndex = (currentPage.value - 1) * pageSize.value
-//   // const endIndex = startIndex + pageSize.value
-//   // return filteredList.value.slice(startIndex, endIndex)
-// })
-// const paginatedList = [];
-const paginatedList = ref([
-  {
-    id: 1,
-    filename: "666.pdf",
-    fileType: "PDF",
-    businessType: "产品",
-    fileSize: "10M",
-    uploadTime: "2025/07/31",
-    status: "解析完成"
-  },
-  {
-    id: 2,
-    filename: "777.docx",
-    fileType: "Word",
-    businessType: "技术",
-    fileSize: "5M",
-    uploadTime: "2025/08/02",
-    status: "解析中"
-  },
-  {
-    id: 3,
-    filename: "888.xlsx",
-    fileType: "Excel",
-    businessType: "销售",
-    fileSize: "8M",
-    uploadTime: "2025/08/05",
-    status: "解析完成"
-  },
-  {
-    id: 4,
-    filename: "999.pptx",
-    fileType: "PPT",
-    businessType: "市场",
-    fileSize: "15M",
-    uploadTime: "2025/08/10",
-    status: "解析失败"
-  },
-  {
-    id: 5,
-    filename: "1010.pdf",
-    fileType: "PDF",
-    businessType: "产品",
-    fileSize: "12M",
-    uploadTime: "2025/08/15",
-    status: "解析完成"
-  },
-  {
-    id: 6,
-    filename: "1111.docx",
-    fileType: "Word",
-    businessType: "运营",
-    fileSize: "3M",
-    uploadTime: "2025/08/20",
-    status: "解析中"
-  },
-  {
-    id: 7,
-    filename: "1212.xlsx",
-    fileType: "Excel",
-    businessType: "财务",
-    fileSize: "6M",
-    uploadTime: "2025/08/25",
-    status: "解析完成"
-  },
-  {
-    id: 8,
-    filename: "1313.pdf",
-    fileType: "PDF",
-    businessType: "技术",
-    fileSize: "9M",
-    uploadTime: "2025/09/01",
-    status: "解析失败"
-  },
-  {
-    id: 9,
-    filename: "1414.pptx",
-    fileType: "PPT",
-    businessType: "销售",
-    fileSize: "20M",
-    uploadTime: "2025/09/05",
-    status: "解析中"
-  },
-  {
-    id: 10,
-    filename: "1515.docx",
-    fileType: "Word",
-    businessType: "产品",
-    fileSize: "4M",
-    uploadTime: "2025/09/10",
-    status: "解析完成"
-  }
-]);
-const options = ref([
-  {
-    value: "Option1",
-    label: "Option1"
-  },
-  {
-    value: "Option2",
-    label: "Option2"
-  },
-  {
-    value: "Option3",
-    label: "Option3"
-  }
-]);
+const knowledgeFileList = ref([]);
+const typeOptions = ref([]);
 const curType = ref("new");
 const curForm = ref({});
 const handleNew = (item: any) => {
@@ -379,33 +348,331 @@ const handleEdit = (item: any) => {
   drawer.value = true;
   console.log(item);
 };
+const curKnowledge = ref({});
 const handleDelete = (item: any) => {
   deleteDialogVisible.value = true;
-  console.log(item);
+  curKnowledge.value = item;
 };
+const downloadByUrl = () => {
+  const link = document.createElement("a");
+  link.href = previewFileUrl.value;
+  link.download = curFilename.value; // 文件名
+  document.body.appendChild(link);
+  link.click();
+
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(previewFileUrl.value); // 释放 blob URL
+  }, 100);
+};
+const handlePreview = (item: any) => {
+  curKnowledge.value = item;
+  curFilename.value = item.filename;
+  axios
+    .get(`/download/v1/files/retrieve?file_id=${item.minio_id}`, {
+      headers: {
+        Authorization: `Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac`
+      }
+    })
+    .then(response => {
+      console.log(response);
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/octet-stream"
+      });
+      const blobUrl = URL.createObjectURL(blob);
+      previewDialogVisible.value = true;
+      previewFileUrl.value = response.data.file.url.replace(
+        "127.0.0.1",
+        "192.168.31.167"
+      );
+    })
+    .catch(err => {
+      ElMessage.error("下载失败，请重试");
+    });
+};
+const handleDownload = (item: any) => {
+  axios
+    .get(`/download/v1/files/retrieve?file_id=${item.minio_id}`, {
+      headers: {
+        Authorization: `Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac`
+      }
+    })
+    .then(response => {
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = item.filename || "download_file";
+      if (contentDisposition) {
+        // 解析后端返回的文件名（处理编码问题）
+        const match = contentDisposition.match(/filename="?(.+?)"?$/);
+        if (match && match[1]) {
+          filename = decodeURIComponent(escape(match[1])); // 解码特殊字符
+        }
+      }
+
+      const blob = new Blob([response.data]);
+      const downloadUrl = response.data.file.url.replace(
+        "127.0.0.1",
+        "192.168.31.167"
+      );
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename; // 文件名
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl); // 释放 blob URL
+      }, 100);
+    })
+    .catch(err => {
+      ElMessage.error("下载失败，请重试");
+    });
+};
+// const handleDownload = (item: any) => {
+//   useManageStoreHook()
+//     .downloadFile(item.minio_id)
+//     .then(res => {
+//       console.log(res);
+//       const originalUrl = res.file?.url;
+//       if (!originalUrl) {
+//         ElMessage.error("获取下载地址失败");
+//         return;
+//       }
+//       // 替换本地 IP 为目标 IP（确保 URL 可访问）
+//       const downloadUrl = originalUrl.replace("127.0.0.1", "192.168.31.167");
+
+//       // 2. 创建 a 标签触发下载
+//       const link = document.createElement("a");
+//       link.href = downloadUrl; // 下载地址
+//       // 设置文件名（可选，若接口返回文件名可从 item 中获取）
+//       link.download = item.filename || "download_file";
+//       document.body.appendChild(link);
+//       link.click(); // 模拟点击下载
+
+//       // 3. 清理 DOM 元素
+//       setTimeout(() => {
+//         document.body.removeChild(link);
+//       }, 100);
+
+//       // ElMessage.success("开始下载");
+//     });
+// };
 // 处理搜索
-const handleSearch = debounce(() => {
-  // currentPage.value = 1 // 搜索时重置到第一页
-}, 300);
+const handleSearch = () => {
+  currentPage.value = 1; // 搜索时重置到第一页
+  refresh();
+};
 
 // 处理页码变更
 const handlePageChange = (page: number) => {
-  // currentPage.value = page
-  // // 更新store中的页码
-  // visitorDetails.value.currentPage = page
+  currentPage.value = page;
+  refresh();
 };
 
 // 处理每页条数变更
 const handlePageSizeChange = (size: number) => {
-  // pageSize.value = size
-  // currentPage.value = 1 // 改变每页条数时重置到第一页
-  // visitorDetails.value.currentPage = 1
+  pageSize.value = size;
+  refresh();
+};
+const fileList = ref<
+  {
+    name: string;
+    percentage: number; // 文件进度（0-100）
+    status: "waiting" | "uploading" | "success" | "fail"; // 状态：等待/成功/失败
+    raw: File; // 原始文件对象
+    size: number;
+  }[]
+>([]);
+const isDetail = ref(false);
+const totalPercentage = computed(() => {
+  if (fileList.value.length === 0) return 0;
+  const sumProgress = fileList.value.reduce(
+    (sum, file) => sum + file.percentage,
+    0
+  );
+  return Math.round(sumProgress / fileList.value.length);
+});
+const totalStatus = computed(() => {
+  const hasFail = fileList.value.some(file => file.status === "fail");
+  const allSuccess = fileList.value.every(file => file.status === "success");
+  if (hasFail) return "exception"; // 有失败→红色
+  if (allSuccess) return "success"; // 全成功→绿色
+  return ""; // 上传中→默认蓝色
+});
+const formatDateTime = timeStr => {
+  if (!timeStr) return ""; // 处理空值
+  const date = new Date(timeStr); // 解析时间字符串为 Date 对象
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 补零（如 3 → "03"）
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  // 拼接为 "YYYY-MM-DD HH:MM:SS" 格式
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+const getFileType = (filename: string) => {
+  if (!filename) return ""; // 文件名为空时返回空
+  const lastDotIndex = filename.lastIndexOf("."); // 找到最后一个 "." 的位置
+  if (lastDotIndex === -1) return t("manage.knowledge.noExtension"); // 无后缀时返回“无扩展名”
+  return filename.slice(lastDotIndex); // 截取从 "." 到结尾的部分（如 .pdf）
+};
+const getFileIcon = (filename: string) => {
+  const fileType = getFileType(filename);
+  // 有匹配的图标则返回，无匹配则默认用一个“通用文件图标”（可自行添加通用图标）
+  return iconMap.value[fileType] || docxIcon; // 这里默认用 docxIcon，建议替换为专门的通用图标
+};
+const getBusinessTypeName = id => {
+  // 找到 typeOptions 中 id 匹配的项
+  const matched = typeOptions.value.find(item => item.id == id);
+  // 若找到则返回 name，否则返回默认文本（如 "未知类型"）
+  return matched ? matched.name : t("manage.knowledge.unknownType");
 };
 
 const fileUpload = (uploadFile, uploadFiles) => {
   if (!uploadFiles || uploadFiles.length === 0) return;
-  console.log(uploadFiles);
+  // 初始化文件列表：每个文件默认“等待”状态，进度0%
+  fileList.value = uploadFiles.map(file => ({
+    name: file.name,
+    percentage: 0,
+    status: "waiting",
+    raw: file.raw,
+    size: file.raw.size
+  }));
+  isDetail.value = true; // 显示上传详情区
+  // 模拟每个文件的上传进度（实际项目中替换为接口回调）
+  // fileList.value.forEach((file, index) => {
+  //   // 模拟进度递增（每500ms增加20%，直到100%）
+  //   const timer = setInterval(() => {
+  //     if (file.percentage >= 100) {
+  //       clearInterval(timer);
+  //       file.status = "success"; // 标记为成功
+  //       return;
+  //     }
+
+  //     // 模拟随机失败（第2个文件强制失败，用于测试）
+  //     if (index === 1 && file.percentage === 50) {
+  //       clearInterval(timer);
+  //       file.status = "fail"; // 标记为失败
+  //       return;
+  //     }
+
+  //     file.percentage += 20;
+  //   }, 500);
+  // });
 };
+const deleteKnowledge = () => {
+  useManageStoreHook()
+    .deleteKnowledgeInfo({ id: curKnowledge.value.id })
+    .then(res => {
+      ElMessage.success(t("manage.user.deleteSuccess"));
+      refresh();
+    });
+  deleteDialogVisible.value = false;
+};
+const refresh = () => {
+  useManageStoreHook()
+    .getKnowledgeFileList(currentPage.value, pageSize.value, input.value)
+    .then(res => {
+      knowledgeFileList.value = res.data;
+    });
+};
+const progressTimers = ref<number[]>([]);
+const onSubmit = () => {
+  // 校验业务类型和文件
+  if (!businessType.value) {
+    ElMessage.warning(t("warn")); // 提示“请选择业务类型”
+    return;
+  }
+  if (fileList.value.length === 0) {
+    ElMessage.warning("请选择文件");
+    return;
+  }
+
+  // 构建FormData
+  const formdata = new FormData();
+  formdata.append("biz_type", businessType.value);
+  fileList.value.forEach(file => {
+    formdata.append("files", file.raw);
+  });
+
+  // 开始模拟进度
+  fileList.value.forEach((file, index) => {
+    file.status = "uploading";
+    // 每个文件启动定时器，每秒增长10%进度
+    const timer = window.setInterval(() => {
+      if (file.percentage < 90) {
+        // 留10%，等接口返回后再补满
+        file.percentage += 10;
+      }
+    }, 500);
+    progressTimers.value.push(timer);
+  });
+
+  // 调用真实接口
+  useManageStoreHook()
+    .uploadKnowledge(formdata)
+    .then(res => {
+      // 接口成功：补满进度，标记成功
+      fileList.value.forEach(file => {
+        file.percentage = 100;
+        file.status = "success";
+      });
+      ElMessage.success(t("manage.user.uploadSuccess"));
+      // 延迟关闭弹窗，让用户看到成功状态
+      setTimeout(() => {
+        // uploadDialogVisible.value = false;
+        refresh();
+      }, 1000);
+    })
+    .catch(err => {
+      // 接口失败：标记失败状态
+      fileList.value.forEach(file => {
+        file.status = "fail";
+      });
+      ElMessage.error(t("manage.knowledge.failTips"));
+    })
+    .finally(() => {
+      // 清除所有进度定时器（无论成功失败都停止模拟）
+      progressTimers.value.forEach(timer => clearInterval(timer));
+      progressTimers.value = [];
+    });
+};
+
+// const onSubmit = () => {
+//   if (!businessType.value) {
+//     ElMessage.error(t("manage.knowledge.warn"));
+//     return;
+//   }
+//   const formdata = new FormData();
+//   formdata.append("biz_type", businessType.value);
+//   fileList.value.forEach(file => {
+//     formdata.append("files", file.raw);
+//   });
+//   useManageStoreHook()
+//     .uploadKnowledge(formdata)
+//     .then(res => {
+//       console.log(res);
+//       ElMessage.success(t("manage.user.uploadSuccess"));
+//       uploadDialogVisible.value = false;
+//       refresh();
+//     })
+//     .finally(() => {
+//       // 无论成功/失败，最终都清除文件列表
+//       if (fileList.value) {
+//         // fileList.value.clearFiles(); // 调用组件的clearFiles方法清空列表
+//       }
+//     });
+// };
+onMounted(() => {
+  useManageStoreHook()
+    .getTypeList()
+    .then(res => {
+      typeOptions.value = res.data;
+    });
+  refresh();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -414,14 +681,14 @@ const fileUpload = (uploadFile, uploadFiles) => {
   background: #ffffff;
   box-shadow: 0px 2px 6px 0px rgba(13, 10, 44, 0.08);
   border-radius: 12px;
-  overflow: hidden;
   font-family:
     HarmonyOS Sans SC,
     HarmonyOS Sans SC;
 }
-// .main {
-//   height: 100%;
-// }
+.main {
+  height: 100%;
+  overflow-y: auto;
+}
 .table {
   width: 100%;
 }
@@ -445,6 +712,7 @@ const fileUpload = (uploadFile, uploadFiles) => {
   }
 }
 .file-list {
+  position: relative;
   .tips {
     font-weight: 400;
     font-size: 12px;
@@ -454,6 +722,16 @@ const fileUpload = (uploadFile, uploadFiles) => {
       text-decoration: underline;
       cursor: pointer;
     }
+  }
+  .el-progress {
+    max-width: 300px;
+    width: 100%;
+  }
+  .close-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
   }
 }
 .upload-class {

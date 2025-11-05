@@ -3,9 +3,10 @@
     <div class="flex items-center justify-between mb-6">
       <el-input
         v-model="input"
-        style="width: 260px"
+        style="width: 390px"
         :placeholder="$t('manage.user.searchPlaceholder')"
         :suffix-icon="Search"
+        @change="handleSearch"
       />
       <div class="flex items-center gap-4">
         <el-button type="primary" round color="#2173FC" @click="handleNew"
@@ -31,32 +32,54 @@
     </div>
     <div class="table">
       <el-table :data="userList" style="width: 100%" :row-hover="true">
-        <el-table-column prop="id" label="序号" align="left" width="80" />
+        <el-table-column
+          prop="id"
+          :label="$t('manage.knowledge.index')"
+          align="left"
+          width="80"
+        />
         <el-table-column
           prop="username"
           label="用户名"
           align="left"
           width="90"
         />
-        <el-table-column prop="phone" label="手机号码" align="left" />
-        <el-table-column prop="email" label="邮箱" align="left" width="180" />
+        <el-table-column
+          prop="phone"
+          :label="$t('manage.user.number')"
+          align="left"
+        />
+        <el-table-column
+          prop="email"
+          :label="$t('manage.user.email')"
+          align="left"
+          width="180"
+        />
         <el-table-column prop="agent_code" label="Agent code" align="left" />
-        <el-table-column prop="created_at" label="创建时间" align="left">
+        <el-table-column
+          prop="created_at"
+          :label="$t('manage.user.createTime')"
+          align="left"
+        >
           <template #default="scope">
             {{ formatDateTime(scope.row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="启用状态" align="center">
+        <el-table-column
+          prop="status"
+          :label="$t('manage.user.enableStatus')"
+          align="center"
+        >
           <template #default="scope">
             <el-switch
               v-model="scope.row.status"
-              :active-value="'1'"
-              :inactive-value="'2'"
+              :active-value="1"
+              :inactive-value="2"
               @change="handleStatusChange(scope.row)"
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="right">
+        <el-table-column :label="$t('manage.user.operate')" align="right">
           <template #default="scope">
             <div class="flex items-center gap-4 justify-end">
               <img
@@ -76,7 +99,7 @@
       <Pagination
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="paginatedList.length"
+        :total="userList.length"
         :background="true"
         @page-change="handlePageChange"
         @size-change="handlePageSizeChange"
@@ -102,10 +125,10 @@
       <template #header>
         <div class="title">
           <el-icon color="#FAAD14"><WarningFilled /></el-icon>
-          <span>删除用户信息确认</span>
+          <span>{{ $t("manage.user.deleteTitle") }}</span>
         </div>
       </template>
-      <span>您确定要删除当前用户信息吗？</span>
+      <span>{{ $t("manage.user.deleteDesc") }}</span>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="deleteDialogVisible = false">{{
@@ -137,124 +160,6 @@ const currentPage = ref(1);
 const pageSize = ref(10); // 默认10
 const drawer = ref(false);
 const userList = ref([]);
-// 分页后的列表
-// const paginatedList = computed<any[]>(() => {
-//   // const startIndex = (currentPage.value - 1) * pageSize.value
-//   // const endIndex = startIndex + pageSize.value
-//   // return filteredList.value.slice(startIndex, endIndex)
-// })
-const paginatedList = ref([
-  {
-    id: 1,
-    username: "张三",
-    number: "13939722077",
-    email: "dreuw@netease.com",
-    code: "66666666",
-    createdTime: "2025/07/31",
-    password: "6666",
-    role: "manager",
-    enable: true
-  },
-  {
-    id: 2,
-    username: "李四",
-    number: "13939722077",
-    email: "dreuw@netease.com",
-    code: "66666666",
-    createdTime: "2025/07/31",
-    password: "6666",
-    role: "user",
-    enable: false
-  },
-  {
-    id: 3,
-    username: "王五",
-    number: "13812345678",
-    email: "wangwu@qq.com",
-    code: "88888888",
-    createdTime: "2025/08/05",
-    password: "8888",
-    role: "admin",
-    enable: true
-  },
-  {
-    id: 4,
-    username: "赵六",
-    number: "13787654321",
-    email: "zhaoliu@163.com",
-    code: "99999999",
-    createdTime: "2025/08/10",
-    password: "9999",
-    role: "user",
-    enable: true
-  },
-  {
-    id: 5,
-    username: "孙七",
-    number: "13656789012",
-    email: "sunqi@outlook.com",
-    code: "12345678",
-    createdTime: "2025/08/15",
-    password: "1234",
-    role: "manager",
-    enable: false
-  },
-  {
-    id: 6,
-    username: "周八",
-    number: "13545678901",
-    email: "zhouba@gmail.com",
-    code: "23456789",
-    createdTime: "2025/08/20",
-    password: "2345",
-    role: "user",
-    enable: true
-  },
-  {
-    id: 7,
-    username: "吴九",
-    number: "13434567890",
-    email: "wujiu@hotmail.com",
-    code: "34567890",
-    createdTime: "2025/08/25",
-    password: "3456",
-    role: "admin",
-    enable: false
-  },
-  {
-    id: 8,
-    username: "郑十",
-    number: "13323456789",
-    email: "zhengshi@126.com",
-    code: "45678901",
-    createdTime: "2025/09/01",
-    password: "4567",
-    role: "manager",
-    enable: true
-  },
-  {
-    id: 9,
-    username: "钱一",
-    number: "13212345678",
-    email: "qianyi@sohu.com",
-    code: "56789012",
-    createdTime: "2025/09/05",
-    password: "5678",
-    role: "user",
-    enable: false
-  },
-  {
-    id: 10,
-    username: "孙二",
-    number: "13101234567",
-    email: "suner@yeah.net",
-    code: "67890123",
-    createdTime: "2025/09/10",
-    password: "6789",
-    role: "admin",
-    enable: true
-  }
-]);
 const curType = ref("new");
 const curForm = ref({});
 const handleNew = (item: any) => {
@@ -276,10 +181,10 @@ const handleDelete = (item: any) => {
   console.log(item);
 };
 // 处理搜索
-const handleSearch = debounce(() => {
+const handleSearch = () => {
   currentPage.value = 1; // 搜索时重置到第一页
   getUserList();
-}, 300);
+};
 
 // 处理页码变更
 const handlePageChange = (page: number) => {
@@ -302,7 +207,7 @@ const fileUpload = (uploadFile, uploadFiles) => {
     .upload(formdata)
     .then(res => {
       console.log(res);
-      ElMessage.success("批量上传成功");
+      ElMessage.success(t("manage.user.uploadSuccess"));
       getUserList();
     })
     .finally(() => {
@@ -326,7 +231,26 @@ const formatDateTime = timeStr => {
 };
 const handleStatusChange = row => {
   console.log("当前行状态已更新为：", row.status); // 此时 row.status 已同步为 '1' 或 '0'
-  // 这里可添加接口请求逻辑，如：updateStatus(row.id, row.status)
+  const data = {
+    id: row.id,
+    username: row.username,
+    passwd: row.passwd,
+    email: row.email,
+    phone: row.phone,
+    agent_code: row.agent_code,
+    status: row.status,
+    role: row.role == "1" ? 1 : 2
+  };
+  useManageStoreHook()
+    .updateUserInfo(data)
+    .then(res => {
+      console.log("更新成功：", res);
+      ElMessage.success(t("manage.user.updateSuccess"));
+      getUserList();
+    })
+    .catch(err => {
+      console.error("更新失败：", err);
+    });
 };
 const getUserList = () => {
   useManageStoreHook()
@@ -339,7 +263,7 @@ const deleteUser = () => {
   useManageStoreHook()
     .deleteUserInfo({ id: curUser.value.id })
     .then(res => {
-      ElMessage.success("删除成功");
+      ElMessage.success(t("manage.user.deleteSuccess"));
       getUserList();
     });
   deleteDialogVisible.value = false;
@@ -358,14 +282,14 @@ onMounted(() => {
   background: #ffffff;
   box-shadow: 0px 2px 6px 0px rgba(13, 10, 44, 0.08);
   border-radius: 12px;
-  overflow: hidden;
   font-family:
     HarmonyOS Sans SC,
     HarmonyOS Sans SC;
 }
-// .main {
-//   height: 100%;
-// }
+.main {
+  height: 100%;
+  overflow-y: auto;
+}
 .table {
   width: 100%;
 }

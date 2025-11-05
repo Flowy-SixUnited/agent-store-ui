@@ -37,8 +37,14 @@ export default {
       deleteTitle: "删除用户信息确定",
       deleteDesc: "您确定要删除当前用户信息吗？",
       sure: "确定",
+      createTime: "创建时间",
+      enableStatus: "启用状态",
       deleteSuccess: "删除成功",
-      uploadSuccess: "上传成功"
+      uploadSuccess: "上传成功",
+      updateSuccess: "用户信息更新成功",
+      operate: "操作",
+      user: "用户",
+      manager: "管理员"
     },
     knowledge: {
       title: "知识库管理",
@@ -56,7 +62,20 @@ export default {
       tips2: "可批量上传",
       selectPlaceholder: "请选择业务类型",
       supportTips: "支持PDF格式",
-      selectFile: "选择文件"
+      selectFile: "选择文件",
+      parsingCompleted: "解析完成",
+      parsing: "解析中",
+      parsingFail: "解析失败",
+      waitingTips: "请耐心等候，文件上传中",
+      successTips: "恭喜您，文件上传完成",
+      failTips: "很遗憾，文件上传出错",
+      uploadDetail: "上传详情",
+      total: "共",
+      count: "份",
+      clickView: "点击查看",
+      unknownType: "未知类型",
+      noExtension: "无扩展名",
+      warn: "请选择业务类型"
     }
   }
 };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import VuePdfEmbed from "vue-pdf-embed";
 defineOptions({
   name: "Pdf"
@@ -7,8 +7,7 @@ defineOptions({
 const props = defineProps({
   fileUrl: {
     type: String,
-    default:
-      "https://xiaoxian521.github.io/hyperlink/pdf/Cookie%E5%92%8CSession%E5%8C%BA%E5%88%AB%E7%94%A8%E6%B3%95.pdf"
+    required: true
     // required: true
   }
   // fileName: {
@@ -27,16 +26,18 @@ const rotations = [0, 90, 180, 270];
 const source =
   "https://xiaoxian521.github.io/hyperlink/pdf/Cookie%E5%92%8CSession%E5%8C%BA%E5%88%AB%E7%94%A8%E6%B3%95.pdf";
 
-const fileType = computed(() => {
-  const ext = props.fileUrl.split(".").pop()?.toLowerCase() || "";
-  return ext;
-});
 const handleDocumentRender = () => {
   loading.value = false;
   // console.log(pdfRef.value.doc._pdfInfo.numPages);
   pageCount.value =
     pdfRef.value?.pageCount || pdfRef.value.doc._pdfInfo.numPages;
 };
+const handlePdfError = (err: any) => {
+  loading.value = false;
+  // ElMessage.error("PDF 解析失败，请尝试下载查看");
+  console.error("PDF 预览错误：", err);
+};
+
 const handlePrevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -49,6 +50,16 @@ const handleNextPage = () => {
     currentPage.value++;
   }
 };
+watch(
+  () => props.fileUrl,
+  newUrl => {
+    if (newUrl && pdfRef.value) {
+      loading.value = true; // 重新加载时显示加载态
+      pdfRef.value.load(newUrl); // 调用组件内置方法重新加载 URL
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -63,15 +74,22 @@ const handleNextPage = () => {
       class="image-left"
       @click="handlePrevPage"
     />
-    <div v-if="fileType === 'pdf'" class="h-[calc(100vh-505px)] bg-[#f7f7f7]">
+    <div class="h-[calc(100vh-505px)] bg-[#f7f7f7]">
       <el-scrollbar>
         <vue-pdf-embed
           ref="pdfRef"
           class="h-full container overflow-auto"
           :rotation="rotations[currentRotation]"
           :page="currentPage"
-          :source="fileUrl"
+          :source="{
+            url: fileUrl,
+            httpHeaders: {
+              authorization:
+                'Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac'
+            }
+          }"
           @rendered="handleDocumentRender"
+          @error="handlePdfError"
         />
       </el-scrollbar>
     </div>

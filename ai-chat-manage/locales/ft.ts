@@ -36,7 +36,15 @@ export default {
       selectPlaceholder: "請選擇",
       deleteTitle: "刪除使用者資訊確認",
       deleteDesc: "您確定要刪除目前使用者資訊嗎？",
-      sure: "確定"
+      sure: "確定",
+      createTime: "建立時間",
+      enableStatus: "啟用狀態",
+      deleteSuccess: "刪除成功",
+      uploadSuccess: "上傳成功",
+      updateSuccess: "用戶資訊更新成功",
+      operate: "操作",
+      user: "使用者",
+      manager: "管理員"
     },
     knowledge: {
       title: "知識庫管理",
@@ -54,7 +62,20 @@ export default {
       tips2: "可批次上傳",
       selectPlaceholder: "請選擇業務類型",
       supportTips: "支援PDF格式",
-      selectFile: "選擇檔案"
+      selectFile: "選擇檔案",
+      parsingCompleted: "解析完成",
+      parsing: "解析中",
+      parsingFail: "解析失敗",
+      waitingTips: "請耐心等候，檔案上傳中",
+      successTips: "恭喜您，檔案上傳完成",
+      failTips: "很遺憾，檔案上傳出錯",
+      uploadDetail: "上傳詳情",
+      total: "共",
+      count: "份",
+      clickView: "點擊查看",
+      unknownType: "未知類型",
+      noExtension: "無副檔名",
+      warn: "請選擇業務類型"
     }
   }
 };

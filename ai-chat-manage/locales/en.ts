@@ -37,7 +37,15 @@ export default {
       deleteTitle: "Confirm User Deletion",
       deleteDesc:
         "Are you sure you want to delete the current user information?",
-      sure: "Confirm"
+      sure: "Confirm",
+      createTime: "Creation Time",
+      enableStatus: "Enable Status",
+      deleteSuccess: "Deletion Successful",
+      uploadSuccess: "Upload Successful",
+      updateSuccess: "User information updated successfully",
+      operate: "Operation",
+      user: "User",
+      manager: "Administrator"
     },
     knowledge: {
       title: "Knowledge Base Management",
@@ -55,7 +63,20 @@ export default {
       tips2: "Bulk upload supported",
       selectPlaceholder: "Please select business type",
       supportTips: "PDF format supported",
-      selectFile: "Select File"
+      selectFile: "Select File",
+      parsingCompleted: "Parsing Completed",
+      parsing: "Parsing in Progress",
+      parsingFail: "Parsing Failed",
+      waitingTips: "Please wait patiently, file is uploading",
+      successTips: "Congratulations, file upload completed",
+      failTips: "Unfortunately, file upload failed",
+      uploadDetail: "Upload Details",
+      total: "Total",
+      count: "items",
+      clickView: "Click to View",
+      unknownType: "Unknown Type",
+      noExtension: "No Extension",
+      warn: "Please select a business type"
     }
   }
 };

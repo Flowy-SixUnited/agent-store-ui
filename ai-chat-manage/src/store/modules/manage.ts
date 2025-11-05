@@ -9,7 +9,12 @@ import {
   addUser,
   updateUser,
   deleteUser,
-  uploadUser
+  uploadUser,
+  getBizTypeList,
+  uploadKnowledge,
+  getFileList,
+  deleteKnowledge,
+  downloadKnowledge
 } from "@/api/manage";
 export const useManageStore = defineStore("mange", {
   state: () => {
@@ -105,6 +110,72 @@ export const useManageStore = defineStore("mange", {
         uploadUser(data)
           .then(res => {
             console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    // 获取业务类型列表
+    async getTypeList() {
+      return new Promise<ManageResult>((resolve, reject) => {
+        getBizTypeList()
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async uploadKnowledge(data: object) {
+      return new Promise<ManageResult>((resolve, reject) => {
+        uploadKnowledge(data)
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async getKnowledgeFileList(page, pageSize, keywork) {
+      return new Promise<ManageResult>((resolve, reject) => {
+        getFileList(page, pageSize, keywork)
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async deleteKnowledgeInfo(data: object) {
+      return new Promise<ManageResult>((resolve, reject) => {
+        deleteKnowledge(data)
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async downloadFile(id) {
+      return new Promise<ManageResult>((resolve, reject) => {
+        downloadKnowledge(id)
+          .then(res => {
+            // console.log(res);
             res.success = true;
             resolve(res);
           })
