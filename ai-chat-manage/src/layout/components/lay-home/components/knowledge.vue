@@ -163,6 +163,7 @@
       width="800"
       style="height: 700px"
       class="preview-class"
+      @close="handleDialogClose"
     >
       <template #header>
         <div class="flex items-center gap-2">
@@ -314,8 +315,6 @@ import xlsxIcon from "@/assets/home/file/xlsx.png";
 import Preview from "./preview.vue";
 import { useManageStoreHook } from "@/store/modules/manage";
 import axios from "axios";
-import { tr } from "element-plus/es/locale/index.mjs";
-import { it } from "node:test";
 const iconMap = ref({
   ".pdf": pdfIcon,
   ".docx": docxIcon,
@@ -393,6 +392,31 @@ const handlePreview = (item: any) => {
       ElMessage.error("下载失败，请重试");
     });
 };
+
+async function downloadFile(url, fileName = "") {
+  try {
+    const res = await axios.get(url, {
+      responseType: "blob"
+    });
+
+    const name =
+      fileName ||
+      res.headers["content-disposition"]?.match(/filename="?(.+)"?/i)?.[1] ||
+      "download";
+
+    const blob = new Blob([res.data]);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 const handleDownload = (item: any) => {
   axios
     .get(`/download/v1/files/retrieve?file_id=${item.minio_id}`, {
@@ -400,32 +424,52 @@ const handleDownload = (item: any) => {
         Authorization: `Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039`
       }
     })
-    .then(response => {
-      const contentDisposition = response.headers["content-disposition"];
-      let filename = item.filename || "download_file";
-      if (contentDisposition) {
-        // 解析后端返回的文件名（处理编码问题）
-        const match = contentDisposition.match(/filename="?(.+?)"?$/);
-        if (match && match[1]) {
-          filename = decodeURIComponent(escape(match[1])); // 解码特殊字符
-        }
-      }
+    .then(res => {
+      downloadFile(res.data.file.url, item.filename);
+      // const name = item.filename ||
+      //   res.headers["content-disposition"]?.match(/filename="?(.+)"?/i)?.[1] ||
+      // 'download';
 
-      const blob = new Blob([response.data]);
-      const downloadUrl = response.data.file.url;
+      // const blob = new Blob([res.data]);
+      // const link = document.createElement('a');
+      // link.href = URL.createObjectURL(blob);
+      // link.download = name;            // 关键 3：指定下载文件名
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // URL.revokeObjectURL(link.href);
+      // if (contentDisposition) {
+      //   // 解析后端返回的文件名（处理编码问题）
+      //   const match = contentDisposition.match(/filename="?(.+?)"?$/);
+      //   if (match && match[1]) {
+      //     filename = decodeURIComponent(escape(match[1])); // 解码特殊字符
+      //   }
+      // }
+      // const blob = new Blob([response.data], {
+      //   type: response.headers["content-type"] || "application/octet-stream"
+      // });
+      // const blobUrl = URL.createObjectURL(blob);
 
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = filename; // 文件名
-      document.body.appendChild(link);
-      link.click();
+      // // const downloadUrl = response.data.file.url;
 
-      setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(downloadUrl); // 释放 blob URL
-      }, 100);
+      // const link = document.createElement("a");
+      // link.href = blobUrl;
+      // link.download = filename; // 文件名
+      // document.body.appendChild(link);
+      // link.click();
+
+      // setTimeout(() => {
+      //   document.body.removeChild(link);
+      //   URL.revokeObjectURL(blobUrl); // 释放 blob URL
+      // }, 100);
     })
     .catch(err => {
+      console.error("下载失败详情:", {
+        status: err.response?.status, // 接口状态码
+        statusText: err.response?.statusText, // 状态描述
+        data: err.response?.data, // 错误响应数据
+        message: err.message // 错误信息
+      });
       ElMessage.error("下载失败，请重试");
     });
 };
@@ -623,6 +667,7 @@ const onSubmit = () => {
       // 延迟关闭弹窗，让用户看到成功状态
       setTimeout(() => {
         // uploadDialogVisible.value = false;
+        fileList.value = [];
         refresh();
       }, 1000);
     })
@@ -634,6 +679,7 @@ const onSubmit = () => {
       ElMessage.error(t("manage.knowledge.failTips"));
     })
     .finally(() => {
+      fileList.value = [];
       // 清除所有进度定时器（无论成功失败都停止模拟）
       progressTimers.value.forEach(timer => clearInterval(timer));
       progressTimers.value = [];
@@ -673,6 +719,10 @@ onMounted(() => {
     });
   refresh();
 });
+const handleDialogClose = () => {
+  previewDialogVisible.value = false;
+  previewFileUrl.value = ""; // 清空子组件的 fileUrl  props
+};
 </script>
 
 <style lang="scss" scoped>

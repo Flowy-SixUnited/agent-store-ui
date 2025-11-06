@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { number } from "echarts";
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import VuePdfEmbed from "vue-pdf-embed";
 defineOptions({
@@ -9,11 +10,11 @@ const props = defineProps({
     type: String,
     required: true
     // required: true
+  },
+  page: {
+    type: Number,
+    default: 1
   }
-  // fileName: {
-  //   type: String,
-  //   required: true
-  // }
 });
 // const { t } = useI18n();
 const pdfRef = ref<any>();
@@ -60,6 +61,15 @@ watch(
     if (newUrl && pdfRef.value) {
       loading.value = true; // 重新加载时显示加载态
       // pdfRef.value.load(newUrl); // 调用组件内置方法重新加载 URL
+    }
+  },
+  { immediate: true }
+);
+watch(
+  () => props.page,
+  newUrl => {
+    if (newUrl) {
+      currentPage.value = newUrl;
     }
   },
   { immediate: true }

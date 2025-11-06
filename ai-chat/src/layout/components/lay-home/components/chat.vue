@@ -4,12 +4,15 @@
       {{ content }}
     </div>
     <div class="message">
-      <Markdown :content="message" />
-      <div class="flex items-center justify-between">
+      <Loading v-if="message == '内容加载中...'" />
+      <Markdown v-else :content="message" />
+      <div v-if="fileList.length > 0" class="flex items-center justify-between">
         <div class="origin" @click="openOrigin">
-          <div class="icon"><img :src="pdfIcon" /></div>
-          <div class="icon"><img :src="pdfIcon" /></div>
-          <span>2个{{ $t("chat.citationSources") }}</span>
+          <div v-for="(item, index) in fileList" :key="index" class="icon">
+            <img :src="pdfIcon" />
+          </div>
+          <!-- <div class="icon"><img :src="pdfIcon" /></div> -->
+          <span>{{ fileList.length }}个{{ $t("chat.citationSources") }}</span>
           <el-icon :size="12" color="#a8b1b7"><ArrowRight /></el-icon>
         </div>
         <div class="flex items-center gap-3">
@@ -34,6 +37,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import Markdown from "./markdown.vue";
+import Loading from "./Loading.vue";
 import docxIcon from "@/assets/home/file/docx.png";
 import xlsxIcon from "@/assets/home/file/xlsx.png";
 import pdfIcon from "@/assets/home/file/pdf.png";
@@ -54,6 +58,10 @@ const props = defineProps({
   isStreaming: {
     type: Boolean,
     default: false
+  },
+  fileList: {
+    type: Array,
+    default: () => []
   }
 });
 const emit = defineEmits(["openOrigin"]);

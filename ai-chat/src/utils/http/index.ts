@@ -23,7 +23,7 @@ const defaultConfig: AxiosRequestConfig = {
     "Content-Type": "application/json",
     "X-Requested-With": "XMLHttpRequest"
     // Authorization:
-    //   "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe"
+    //   "Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039"
   },
   // 数组格式参数序列化（https://github.com/axios/axios/issues/5142）
   paramsSerializer: {
@@ -55,7 +55,7 @@ class PureHttp {
       PureHttp.requests.push((token: string) => {
         config.headers["Authorization"] = formatToken(token);
         config.headers["Authorization"] =
-          "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
+          "Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039";
         resolve(config);
       });
     });
@@ -95,7 +95,7 @@ class PureHttp {
                         const token = res.data.accessToken;
                         config.headers["Authorization"] = formatToken(token);
                         config.headers["Authorization"] =
-                          "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
+                          "Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039";
                         PureHttp.requests.forEach(cb => cb(token));
                         PureHttp.requests = [];
                       })
@@ -109,7 +109,7 @@ class PureHttp {
                     data.accessToken
                   );
                   config.headers["Authorization"] =
-                    "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe";
+                    "Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039";
                   resolve(config);
                 }
               } else {

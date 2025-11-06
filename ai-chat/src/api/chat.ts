@@ -13,6 +13,8 @@ export type ChatResult = {
     content: string;
     content_type: string;
     node_is_finish: boolean;
+    token: string;
+    user: object;
   };
 };
 export type StreamResponse = {
@@ -21,8 +23,8 @@ export type StreamResponse = {
   data: object;
 };
 /** 登录 */
-export const getGenerate = (data?: object) => {
-  return http.request<ChatResult>("post", "/api/generate", { data });
+export const getLogin = (data?: object) => {
+  return http.request<ChatResult>("post", "/api/v1/user/login", { data });
 };
 
 export const getChat = (data?: object) => {
@@ -33,7 +35,7 @@ export const getChat = (data?: object) => {
       data,
       headers: {
         Authorization:
-          "Bearer pat_ff0252e4fe96ed268db29f8052428c2512c654246baeff75ef385fd5748a1efe",
+          "Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039",
         Accept: "text/event-stream",
         "Content-Type": "application/json"
       }
@@ -57,4 +59,13 @@ export const getUpload = (data: FormData) => {
       "Content-Type": "multipart/form-data" // 配置上传类型
     }
   });
+};
+export const downloadFile = (fileId: string) => {
+  return http.request<ChatResult>(
+    "get",
+    `/download/v1/files/retrieve?file_id=${fileId}`
+  );
+};
+export const getFileId = (data?: object) => {
+  return http.request<ChatResult>("post", "/coze/v1/workflow/run", { data });
 };

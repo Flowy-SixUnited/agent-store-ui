@@ -14,7 +14,7 @@ import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-
+import { useChatStoreHook } from "@/store/modules/chat";
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 // import Lock from "~icons/ri/lock-fill";
@@ -43,18 +43,34 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  email: "666@qq.com",
-  password: "admin123",
+  email: "",
+  password: ""
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   disabled.value = true;
-  const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
-  storageLocal().setItem(userKey, mockUserInfo);
-  router.push({ path: "/" });
-  message(t("login.loginSuccess"), { type: "success" });
-  disabled.value = false;
+  // const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
+  // storageLocal().setItem(userKey, mockUserInfo);
+  // router.push({ path: "/" });
+  // message(t("login.loginSuccess"), { type: "success" });
+  // disabled.value = false;
+  const data = {
+    email: ruleForm.email,
+    passwd: ruleForm.password
+  };
+  useChatStoreHook()
+    .login(data)
+    .then(res => {
+      console.log(res);
+      const mockUserInfo = { id: 1, username: "admin", roles: ["admin"] };
+      storageLocal().setItem(userKey, mockUserInfo);
+      storageLocal().setItem("token", res.data.token);
+      storageLocal().setItem("user", res.data.user);
+      router.push({ path: "/" });
+      message(t("login.loginSuccess"), { type: "success" });
+      disabled.value = false;
+    });
   // await formEl.validate(valid => {
   //   if (valid) {
   //     loading.value = true;

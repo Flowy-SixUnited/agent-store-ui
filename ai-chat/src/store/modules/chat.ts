@@ -1,15 +1,24 @@
 import { defineStore } from "pinia";
 import { store } from "../utils";
 
-import { type ChatResult, getDownload, getChat } from "@/api/chat";
+import {
+  type ChatResult,
+  getDownload,
+  getChat,
+  getLogin,
+  downloadFile,
+  getFileId
+} from "@/api/chat";
 export const useChatStore = defineStore("chat", {
   actions: {
     /** 聊天 */
     async goChat(content: string, onMessage?: (content: string) => void) {
       const params = {
-        workflow_id: "7568757545712484352",
+        workflow_id: "7568754314164830208",
         parameters: {
-          input: content
+          query: content,
+          db_name: "test",
+          qa_id: "abcbcbc"
         }
       };
       return new Promise<string>((resolve, reject) => {
@@ -84,6 +93,43 @@ export const useChatStore = defineStore("chat", {
         getDownload(name, download)
           .then(data => {
             resolve(data);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async login(data) {
+      return new Promise<ChatResult>((resolve, reject) => {
+        getLogin(data)
+          .then(data => {
+            resolve(data);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async downloadChatFile(id) {
+      return new Promise<ChatResult>((resolve, reject) => {
+        downloadFile(id)
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    async getFile(data) {
+      return new Promise<ChatResult>((resolve, reject) => {
+        getFileId(data)
+          .then(res => {
+            // console.log(res);
+            res.success = true;
+            resolve(res);
           })
           .catch(error => {
             reject(error);

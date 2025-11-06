@@ -99,7 +99,7 @@
       <Pagination
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="userList.length"
+        :total="userList.length || 0"
         :background="true"
         @page-change="handlePageChange"
         @size-change="handlePageSizeChange"
@@ -160,6 +160,7 @@ const currentPage = ref(1);
 const pageSize = ref(10); // 默认10
 const drawer = ref(false);
 const userList = ref([]);
+
 const curType = ref("new");
 const curForm = ref({});
 const handleNew = (item: any) => {
@@ -256,7 +257,7 @@ const getUserList = () => {
   useManageStoreHook()
     .userList(currentPage.value, pageSize.value, input.value)
     .then(res => {
-      userList.value = res.data;
+      userList.value = res.data || [];
     });
 };
 const deleteUser = () => {

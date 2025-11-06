@@ -52,7 +52,7 @@ import { storageLocal } from "@pureadmin/utils";
 import { type DataInfo, userKey } from "@/utils/auth";
 import { useNav } from "@/layout/hooks/useNav";
 const { logout } = useNav();
-const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
+const userInfo = storageLocal().getItem<DataInfo<number>>("user");
 
 const { locale, t } = useI18n();
 const currentLang = ref("简体中文");

@@ -107,6 +107,9 @@ export const deleteKnowledge = (data?: object) => {
 export const downloadKnowledge = (fileId: string) => {
   return http.request<ManageResult>(
     "get",
-    `/download/v1/files/retrieve?file_id=${fileId}`
+    `/download/v1/files/retrieve?file_id=${fileId}`,
+    {
+      responseType: "blob"
+    }
   );
 };

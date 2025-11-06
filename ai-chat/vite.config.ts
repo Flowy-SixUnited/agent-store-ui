@@ -26,14 +26,24 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
         "/api": {
-          target: "http://192.168.31.101:8080",
+          target: "http://192.168.31.167:8024/api",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         },
+        "/file": {
+          target: "http://192.168.31.167:8024",
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/file/, "")
+        },
         "/coze": {
-          target: "http://192.168.31.5:8000",
+          target: "http://113.108.37.132:12332",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/coze/, "")
+        },
+        "/download": {
+          target: "http://192.168.31.12:8888",
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/download/, "")
         }
       },
       // 预热文件以提前转换和缓存结果，降低启动期间的初始页面加载时长并防止转换瀑布
