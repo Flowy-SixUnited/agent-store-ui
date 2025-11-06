@@ -75,7 +75,8 @@ export default {
       clickView: "点击查看",
       unknownType: "未知类型",
       noExtension: "无扩展名",
-      warn: "请选择业务类型"
+      warn: "请选择业务类型",
+      waitTips: "点击确定方可上传文件"
     }
   }
 };

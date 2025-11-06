@@ -63,31 +63,22 @@ watch(
 </script>
 
 <template>
-  <el-card
-    shadow="never"
-    class="flex justify-center h-110"
-    style="background-color: #f7f7f7"
-  >
+  <!--  class="flex justify-center h-110" -->
+  <el-card shadow="never">
     <img
       src="@/assets/home/file/left-icon.png"
       alt="向左"
       class="image-left"
       @click="handlePrevPage"
     />
-    <div class="h-[calc(100vh-505px)] bg-[#f7f7f7]">
+    <div class="h-[calc(100vh-335px)]">
       <el-scrollbar>
         <vue-pdf-embed
           ref="pdfRef"
           class="h-full container overflow-auto"
           :rotation="rotations[currentRotation]"
           :page="currentPage"
-          :source="{
-            url: fileUrl,
-            httpHeaders: {
-              authorization:
-                'Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac'
-            }
-          }"
+          :source="fileUrl"
           @rendered="handleDocumentRender"
           @error="handlePdfError"
         />
@@ -104,15 +95,15 @@ watch(
 </template>
 
 <style scoped lang="scss">
-:deep(.el-card) {
-  background-color: #f7f7f7;
-  --el-card-border-color: #f7f7f7;
-  --el-card-bg-color: #f7f7f7;
-}
+// :deep(.el-card) {
+//   background-color: #f7f7f7;
+//   --el-card-border-color: #f7f7f7;
+//   --el-card-bg-color: #f7f7f7;
+// }
 :deep(.el-card__body) {
-  width: 260px;
+  // width: 260px;
   // padding: 20px 100px;
-  background: #f7f7f7;
+  // background: #f7f7f7;
   // display: flex;
   // justify-content: center;
 }
@@ -122,7 +113,7 @@ watch(
   cursor: pointer;
   position: absolute;
   top: 50%;
-  left: 100px;
+  left: 50px;
   transform: translateY(-50%);
   z-index: 1;
 }
@@ -132,7 +123,7 @@ watch(
   cursor: pointer;
   position: absolute;
   top: 50%;
-  right: 100px;
+  right: 50px;
   transform: translateY(-50%);
   z-index: 1;
 }

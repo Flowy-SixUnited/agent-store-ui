@@ -158,7 +158,12 @@
         </div>
       </template>
     </el-dialog>
-    <el-dialog v-model="previewDialogVisible" width="800" class="preview-class">
+    <el-dialog
+      v-model="previewDialogVisible"
+      width="800"
+      style="height: 700px"
+      class="preview-class"
+    >
       <template #header>
         <div class="flex items-center gap-2">
           <img class="w-5 h-5" :src="pdfIcon" />
@@ -199,6 +204,7 @@
         <el-icon class="close-icon" @click="isDetail = !isDetail"
           ><Close
         /></el-icon>
+        <div class="mb-1">{{ $t("manage.knowledge.waitTips") }}</div>
         <el-progress
           :percentage="totalPercentage"
           :status="totalStatus"
@@ -371,7 +377,7 @@ const handlePreview = (item: any) => {
   axios
     .get(`/download/v1/files/retrieve?file_id=${item.minio_id}`, {
       headers: {
-        Authorization: `Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac`
+        Authorization: `Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039`
       }
     })
     .then(response => {
@@ -381,10 +387,7 @@ const handlePreview = (item: any) => {
       });
       const blobUrl = URL.createObjectURL(blob);
       previewDialogVisible.value = true;
-      previewFileUrl.value = response.data.file.url.replace(
-        "127.0.0.1",
-        "192.168.31.167"
-      );
+      previewFileUrl.value = response.data.file.url;
     })
     .catch(err => {
       ElMessage.error("下载失败，请重试");
@@ -394,7 +397,7 @@ const handleDownload = (item: any) => {
   axios
     .get(`/download/v1/files/retrieve?file_id=${item.minio_id}`, {
       headers: {
-        Authorization: `Bearer pat_c21b44109d8a36b90c2f2fdb8c6feb14e8962b5f65c1757edd482d90db7f6bac`
+        Authorization: `Bearer pat_250803ff0d28f62881a866e0c630b0fd8338663448d449bf76dd2a98ddbbe039`
       }
     })
     .then(response => {
@@ -409,10 +412,7 @@ const handleDownload = (item: any) => {
       }
 
       const blob = new Blob([response.data]);
-      const downloadUrl = response.data.file.url.replace(
-        "127.0.0.1",
-        "192.168.31.167"
-      );
+      const downloadUrl = response.data.file.url;
 
       const link = document.createElement("a");
       link.href = downloadUrl;
@@ -582,7 +582,7 @@ const progressTimers = ref<number[]>([]);
 const onSubmit = () => {
   // 校验业务类型和文件
   if (!businessType.value) {
-    ElMessage.warning(t("warn")); // 提示“请选择业务类型”
+    ElMessage.warning(t("manage.knowledge.warn")); // 提示“请选择业务类型”
     return;
   }
   if (fileList.value.length === 0) {

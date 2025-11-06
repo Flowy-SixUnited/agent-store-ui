@@ -76,7 +76,8 @@ export default {
       clickView: "Click to View",
       unknownType: "Unknown Type",
       noExtension: "No Extension",
-      warn: "Please select a business type"
+      warn: "Please select a business type",
+      waitTips: "Click Confirm to upload the file"
     }
   }
 };

@@ -75,7 +75,8 @@ export default {
       clickView: "點擊查看",
       unknownType: "未知類型",
       noExtension: "無副檔名",
-      warn: "請選擇業務類型"
+      warn: "請選擇業務類型",
+      waitTips: "點擊確定方可上傳檔案"
     }
   }
 };

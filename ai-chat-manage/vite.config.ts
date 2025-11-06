@@ -31,7 +31,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           rewrite: path => path.replace(/^\/api/, "")
         },
         "/download": {
-          target: "http://192.168.31.167:8888",
+          target: "http://192.168.31.12:8888",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/download/, "")
         }
