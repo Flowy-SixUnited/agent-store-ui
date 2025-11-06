@@ -27,7 +27,7 @@
 </template>
 <script setup lang="ts">
 import pdfIcon from "@/assets/home/file/pdf.png";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useChatStoreHook } from "@/store/modules/chat";
 import Preview from "./preview.vue";
 import axios from "axios";
@@ -108,6 +108,11 @@ const handleDialogClose = () => {
   previewDialogVisible.value = false;
   previewFileUrl.value = ""; // 清空子组件的 fileUrl  props
 };
+watch(
+  () => props.fileList,
+  newUrl => {},
+  { immediate: true }
+);
 </script>
 <style lang="scss" scoped>
 .item {
